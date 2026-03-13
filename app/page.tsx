@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Sparkles, Zap, Shield, Clock, Brain, AlertCircle, ShoppingCart, MessageSquare, Plus, Database, Download } from "lucide-react";
 
 // ── Constants ─────────────────────────────────────────────────────────────
-const CHECKOUT_URL = "https://pay.hotmart.com/R104883981X";
+const MONTHLY_CHECKOUT_URL = "https://pay.hotmart.com/R104883981X";
+const ANNUAL_CHECKOUT_URL = "https://pay.hotmart.com/R104883981X?off=ogsqik0m";
 const WHATSAPP_URL = "https://wa.link/pyi5n8";
 
 // ── Components ─────────────────────────────────────────────────────────────
@@ -84,11 +85,70 @@ function BeforeAfterSlider({
     );
 }
 
+function NotificationToast() {
+    const [visible, setVisible] = useState(false);
+    const [current, setCurrent] = useState(0);
+    const notifications = [
+        { name: "Martha Caicedo", plan: "Plan PRO Mensual" },
+        { name: "Juan Quintero", plan: "Plan PRO Mensual" },
+        { name: "Patricia S.", plan: "Plan PRO Mensual" },
+        { name: "Carlos Ruiz", plan: "Plan PRO Mensual" },
+        { name: "Sofia Baena", plan: "Plan PRO Mensual" },
+        { name: "Diego Lopez", plan: "Plan PRO Mensual" },
+        { name: "Andrés G.", plan: "Plan PRO Mensual" },
+        { name: "Laura M.", plan: "Plan PRO Mensual" }
+    ];
+
+    useEffect(() => {
+        const showNext = () => {
+            setCurrent(Math.floor(Math.random() * notifications.length));
+            setVisible(true);
+            setTimeout(() => setVisible(false), 5000);
+        };
+        const timer = setTimeout(showNext, 4000);
+        const interval = setInterval(showNext, 18000);
+        return () => { clearTimeout(timer); clearInterval(interval); };
+    }, []);
+
+    if (!visible) return null;
+
+    return (
+        <div style={{
+            position: "fixed", bottom: 20, left: 20, zIndex: 10000,
+            background: "rgba(13, 13, 20, 0.95)", backdropFilter: "blur(20px)",
+            border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16,
+            padding: "12px 16px", display: "flex", alignItems: "center", gap: 12,
+            boxShadow: "0 20px 40px rgba(0,0,0,0.5)", color: "#fff",
+            maxWidth: 320, animation: "slideInLeft 0.5s ease-out"
+        }}>
+            <div style={{ width: 40, height: 40, background: "linear-gradient(135deg, #8B5CF6, #4F46E5)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <Zap size={20} color="#fff" />
+            </div>
+            <div style={{ flex: 1 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: "#9CA3AF" }}>Nuevo usuario</span>
+                    <span style={{ fontSize: 9, color: "#4B5563" }}>Ahora</span>
+                </div>
+                <div style={{ fontSize: 13, color: "#D1D5DB", lineHeight: 1.3 }}>
+                    <strong style={{ color: "#fff" }}>{notifications[current].name}</strong> acaba de ingresar al <strong style={{ color: "#A78BFA" }}>{notifications[current].plan}</strong>
+                </div>
+            </div>
+            <style>{`
+                @keyframes slideInLeft {
+                    from { transform: translateX(-100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `}</style>
+        </div>
+    );
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────
 
 export default function Home() {
     return (
         <div style={{ background: "#030303", minHeight: "100vh", color: "#fff", fontFamily: "'Inter', sans-serif", overflowX: "hidden", position: "relative" }}>
+            <NotificationToast />
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
                 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -152,20 +212,20 @@ export default function Home() {
             `}</style>
 
             {/* Header */}
-            <nav style={{ position: "sticky", top: 0, zIndex: 100, background: "rgba(3,3,3,0.85)", backdropFilter: "blur(12px)", padding: "16px 24px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+            <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, background: "rgba(3,3,3,0.85)", backdropFilter: "blur(12px)", padding: "16px 24px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
                 <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                         <img src="/logo.png" alt="ClickAds" style={{ height: 40, width: "auto" }} />
                         <span style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.04em" }}>ClickAds</span>
                     </div>
                     <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-                        <Link href="#precio" className="btn-primary" style={{ padding: "10px 24px", fontSize: 14 }}>ACCEDER A LA APP</Link>
+                        <a href="#precio" className="btn-primary" style={{ padding: "10px 24px", fontSize: 14 }}>ACCEDER A LA APP</a>
                     </div>
                 </div>
             </nav>
 
             {/* Hero Section */}
-            <section style={{ padding: "100px 24px 60px", maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
+            <section style={{ padding: "160px 24px 60px", maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
                 <div style={{ background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)", color: "#A78BFA", fontSize: 12, fontWeight: 800, padding: "6px 16px", borderRadius: 100, display: "inline-block", marginBottom: 24 }}>
                     La APP #1 para Dropshipping & Ecommerce 🚀
                 </div>
@@ -191,7 +251,7 @@ export default function Home() {
                 </div>
 
                 <div style={{ display: "flex", gap: 16, justifyContent: "center" }} className="mobile-stack">
-                    <Link href="#precio" className="btn-primary btn-cta">ACCEDER A LA APP</Link>
+                    <a href="#precio" className="btn-primary btn-cta">ACCEDER A LA APP</a>
                 </div>
 
             </section>
@@ -323,9 +383,9 @@ export default function Home() {
                                 <p style={{ fontSize: 20, color: "#A78BFA", fontWeight: 700, marginTop: 4 }}>La rompes completamente.</p>
                             </div>
 
-                            <Link href="#precio" className="btn-primary" style={{ background: "#fff", color: "#030303", padding: "18px 40px", borderRadius: 100, fontWeight: 900, fontSize: 18, border: "none" }}>
+                            <a href="#precio" className="btn-primary" style={{ background: "#fff", color: "#030303", padding: "18px 40px", borderRadius: 100, fontWeight: 900, fontSize: 18, border: "none", textDecoration: "none", display: "inline-flex" }}>
                                 ACCEDER A LA APP
-                            </Link>
+                            </a>
                         </div>
                     </div>
 
@@ -370,9 +430,9 @@ export default function Home() {
                                 "Mientras tú perfeccionas un diseño, <br className="mobile-hide" />
                                 tu competencia ya testeó 50."
                             </blockquote>
-                            <Link href="/dashboard" style={{ color: "#A78BFA", textDecoration: "none", fontWeight: 700, fontSize: 18, display: "inline-flex", alignItems: "center", gap: 8 }}>
+                            <a href="#precio" style={{ color: "#A78BFA", textDecoration: "none", fontWeight: 700, fontSize: 18, display: "inline-flex", alignItems: "center", gap: 8 }}>
                                 Hay una forma mejor <span style={{ fontSize: 22 }}>→</span>
-                            </Link>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -396,7 +456,7 @@ export default function Home() {
                             Sube la foto de tu producto, describe el estilo que quieres y nuestra IA genera **múltiples variaciones profesionales** listas para publicar en Meta Ads. Sin diseñador, sin Photoshop.
                         </p>
 
-                        <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 48 }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 40 }}>
                             {[
                                 { icon: "📸", text: "Foto de celular → Creativo de agencia" },
                                 { icon: "🎨", text: "Fondos, estilos y ángulos automáticos" },
@@ -409,18 +469,18 @@ export default function Home() {
                             ))}
                         </div>
 
-                        <Link href="#precio" className="btn-primary" style={{ padding: "18px 40px", borderRadius: 16, fontSize: 18 }}>
-                            ACCEDER A LA APP
-                        </Link>
-                    </div>
+                        <div style={{ position: "relative", marginBottom: 40 }} className="slider-container">
+                            <BeforeAfterSlider
+                                before="/100ecom/antes-coffee.jpg"
+                                after="/100ecom/coffee_final_ad.jpg"
+                                beforeLabel="ANTES"
+                                afterLabel="DESPUÉS IA"
+                            />
+                        </div>
 
-                    <div style={{ position: "relative" }} className="slider-container">
-                        <BeforeAfterSlider
-                            before="/100ecom/antes-coffee.jpg"
-                            after="/100ecom/coffee_final_ad.jpg"
-                            beforeLabel="ANTES"
-                            afterLabel="DESPUÉS IA"
-                        />
+                        <a href="#precio" className="btn-primary" style={{ padding: "18px 40px", borderRadius: 16, fontSize: 18, width: "100%", justifyContent: "center" }}>
+                            ACCEDER A LA APP
+                        </a>
                     </div>
                 </div>
             </section>
@@ -851,7 +911,7 @@ export default function Home() {
                                 <p style={{ fontSize: 18, color: "#D1D5DB", lineHeight: 1.6, marginBottom: 32 }}>
                                     Si prefieres un catálogo limpio, genera fondos blancos infinitos con sombras 3D perfectas para tu tienda online.
                                 </p>
-                                <Link href="#precio" className="btn-primary" style={{ padding: "16px 32px" }}>OFERTA DISPONIBLE AQUÍ</Link>
+                                <a href="#precio" className="btn-primary" style={{ padding: "16px 32px" }}>OFERTA DISPONIBLE AQUÍ</a>
                             </div>
                             <div style={{ borderRadius: 24, overflow: "hidden", boxShadow: "0 20px 40px rgba(0,0,0,0.5)" }}>
                                 <img src="/photo-studio/fondo-blanco.jpg" alt="Fondo Blanco 3D" style={{ width: "100%", display: "block" }} />
@@ -868,42 +928,41 @@ export default function Home() {
 
 
             {/* Pricing Section */}
-            <section style={{ padding: "120px 24px", background: "linear-gradient(to bottom, #030303, #0A0A0F)" }} id="precio">
-                <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
-                    <h2 style={{ fontSize: "clamp(32px, 5vw, 48px)", fontWeight: 900, marginBottom: 16 }}>Elige tu plan y empieza a escalar hoy</h2>
-                    <p style={{ fontSize: 18, color: "#9CA3AF", marginBottom: 64 }}>Acceso por 30 días. Cancela o pausa cuando quieras.</p>
+            <section style={{ padding: "120px 24px", background: "linear-gradient(to bottom, #030303, #0A0A0F)", scrollMarginTop: "100px" }} id="precio">
+                <div style={{ maxWidth: 1100, margin: "0 auto", textAlign: "center" }}>
+                    <h2 style={{ fontSize: "clamp(32px, 5vw, 48px)", fontWeight: 900, marginBottom: 16 }}>Empieza a escalar tu Ecommerce hoy</h2>
+                    <p style={{ fontSize: 18, color: "#9CA3AF", marginBottom: 64 }}>Acceso inmediato a todas las herramientas. Sin contratos.</p>
 
                     {/* Inclusion Breakdown List */}
                     <div style={{
                         background: "rgba(139,92,246,0.03)",
                         border: "1px solid rgba(139,92,246,0.1)",
                         borderRadius: 32,
-                        padding: "32px",
-                        marginBottom: -40,
+                        padding: "48px",
+                        marginBottom: 64,
                         position: "relative",
                         zIndex: 1,
-                        maxWidth: 600,
-                        margin: "0 auto 24px",
+                        maxWidth: 700,
+                        margin: "0 auto 64px",
                         textAlign: "left"
                     }}>
-                        <div style={{ fontSize: 12, fontWeight: 900, color: "#8B5CF6", letterSpacing: "0.1em", marginBottom: 24, textAlign: "center" }}>TODO LO QUE INCLUYE:</div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                        <div style={{ fontSize: 12, fontWeight: 900, color: "#8B5CF6", letterSpacing: "0.2em", marginBottom: 32, textAlign: "center" }}>TODO LO QUE INCLUYE:</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                             {[
-                                { t: "Generador de Volumen Industrial", v: "$350.000" },
-                                { t: "Angle-Splitter Automático", v: "$173.352" },
-                                { t: "Base de Conocimiento", v: "$99.347" },
-                                { t: "Exportación a Meta Ads", v: "$62.910" },
-                                { t: "BONUS: Plantillas de Copy", v: "$100.347" },
-                                { t: "BONUS: Guía de Ángulos", v: "$82.310" },
-                                { t: "BONUS: Comunidad Privada", v: "$149.421" },
-                                { t: "BONUS: Photo Studio AI (Modelos & 3D)", v: "$199.999" },
+                                { t: "Generador de Volumen Industrial", v: "$359.069" },
+                                { t: "Angle-Splitter Automático", v: "$173.982" },
+                                { t: "Base de Conocimiento", v: "$99.947" },
+                                { t: "Exportación a Meta Ads", v: "$62.930" },
+                                { t: "BONUS: Plantillas de Copy", v: "$99.947" },
+                                { t: "BONUS: Guía de Ángulos", v: "$62.930" },
+                                { t: "BONUS: Comunidad Privada", v: "$44.421" },
                                 { t: "BONUS: Updates de por Vida", v: "Incalculable" }
                             ].map((item, idx) => (
-                                <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 14 }}>
-                                    <div style={{ color: "#fff", display: "flex", alignItems: "center", gap: 8 }}>
-                                        <div style={{ color: "#10B981" }}>✓</div> {item.t}
+                                <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 15, borderBottom: idx !== 7 ? "1px solid rgba(255,255,255,0.03)" : "none", paddingBottom: idx !== 7 ? 16 : 0 }}>
+                                    <div style={{ color: "#fff", display: "flex", alignItems: "center", gap: 12 }}>
+                                        <div style={{ color: "#10B981", fontWeight: 900 }}>✓</div> {item.t}
                                     </div>
-                                    <div style={{ color: "#4B5563", textDecoration: item.v !== "Incalculable" ? "line-through" : "none" }}>{item.v}</div>
+                                    <div style={{ color: "#4B5563", fontWeight: 600 }}>{item.v}</div>
                                 </div>
                             ))}
                         </div>
@@ -914,61 +973,115 @@ export default function Home() {
                         background: "#0D0D14",
                         border: "2px solid #8B5CF6",
                         borderRadius: 40,
-                        padding: "60px 40px",
+                        padding: "80px 40px",
                         position: "relative",
-                        overflow: "hidden",
-                        boxShadow: "0 20px 50px rgba(139,92,246,0.1)"
-                    }}>
+                        maxWidth: 700,
+                        margin: "0 auto",
+                        textAlign: "center",
+                        boxShadow: "0 40px 100px rgba(139,92,246,0.15)",
+                        overflow: "hidden"
+                    }} className="mobile-full-padding">
+                        {/* Launch Badge */}
                         <div style={{
                             position: "absolute",
                             top: 0,
                             left: "50%",
                             transform: "translateX(-50%)",
-                            padding: "8px 24px",
                             background: "#8B5CF6",
                             color: "#fff",
-                            fontWeight: 900,
                             fontSize: 12,
-                            borderBottomLeftRadius: 16,
-                            borderBottomRightRadius: 16
+                            fontWeight: 900,
+                            padding: "10px 32px",
+                            borderBottomLeftRadius: 20,
+                            borderBottomRightRadius: 20,
+                            letterSpacing: "0.1em"
                         }}>OFERTA DE LANZAMIENTO</div>
 
-                        <div style={{ marginBottom: 40, marginTop: 20 }}>
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
-                                <span style={{ fontSize: "clamp(60px, 10vw, 80px)", fontWeight: 900, letterSpacing: "-0.02em" }}>$19.99</span>
+                        <div style={{ marginTop: 40, marginBottom: 48 }}>
+                            <div style={{
+                                background: "rgba(16, 185, 129, 0.1)",
+                                border: "1px solid rgba(16, 185, 129, 0.2)",
+                                color: "#10B981",
+                                fontSize: 13,
+                                fontWeight: 800,
+                                padding: "6px 20px",
+                                borderRadius: 100,
+                                display: "inline-flex",
+                                marginBottom: 24
+                            }}>Ahorras más del 60% hoy 🔥</div>
+
+                            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: 8 }}>
+                                <span style={{ fontSize: "clamp(60px, 12vw, 96px)", fontWeight: 900, color: "#fff", letterSpacing: "-0.04em" }}>$27</span>
+                                <span style={{ fontSize: 24, color: "#4B5563", fontWeight: 700 }}>/mes</span>
                             </div>
-                            <p style={{ color: "#9CA3AF", fontWeight: 600, fontSize: 16 }}>Acceso por 30 días · Sin permanencia</p>
+                            <p style={{ fontSize: 18, color: "#9CA3AF", marginTop: 12, fontWeight: 500 }}>Acceso por 30 días · Sin permanencia</p>
                         </div>
 
-                        <div style={{ display: "flex", flexDirection: "column", gap: 16, textAlign: "left", maxWidth: 400, margin: "0 auto 48px" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 20, textAlign: "left", maxWidth: 450, margin: "0 auto 64px" }}>
                             {[
                                 "Acceso inmediato a la plataforma",
                                 "Todos los bonus incluidos",
                                 "Cancela o pausa cuando quieras",
                                 "Prueba un mes sin compromiso"
                             ].map(feat => (
-                                <div key={feat} style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 16, color: "#D1D5DB" }}>
-                                    <div style={{ color: "#8B5CF6" }}>✓</div> {feat}
+                                <div key={feat} style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 18, color: "#D1D5DB", fontWeight: 600 }}>
+                                    <div style={{ color: "#8B5CF6", fontSize: 20 }}>✓</div> {feat}
                                 </div>
                             ))}
                         </div>
 
-                        <a href={CHECKOUT_URL} className="btn-primary btn-cta" style={{ width: "100%", justifyContent: "center", borderRadius: 16 }}>ACCEDER A LA APP</a>
-
-                        <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 20, color: "#25D366", textDecoration: "none", fontSize: 15, fontWeight: 700, borderBottom: "1px solid rgba(37, 211, 102, 0.3)", paddingBottom: 2 }}>
-                            ¿Dudas? Escribeme por WhatsApp
+                        <a href={MONTHLY_CHECKOUT_URL} className="btn-primary" style={{ width: "100%", justifyContent: "center", padding: "24px 40px", borderRadius: 20, fontSize: 24, fontWeight: 900, boxShadow: "0 20px 40px rgba(139,92,246,0.3)" }}>
+                            ACCEDER A LA APP &rarr;
                         </a>
 
-                        <div style={{ marginTop: 24, display: "flex", alignItems: "center", justifyContent: "center", gap: 20 }}>
-                            <div style={{ fontSize: 12, color: "#4B5563", display: "flex", alignItems: "center", gap: 4 }}>
-                                <div style={{ width: 8, height: 8, background: "#10B981", borderRadius: "50%" }}></div> PAGO SEGURO
+                        <div style={{ marginTop: 40, display: "flex", flexDirection: "column", gap: 24, alignItems: "center" }}>
+                            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" style={{ color: "#10B981", textDecoration: "none", fontSize: 16, fontWeight: 700, display: "flex", alignItems: "center", gap: 10 }}>
+                                <MessageSquare size={20} /> ¿Dudas? Escríbenos por WhatsApp
+                            </a>
+
+                            <div style={{ display: "flex", gap: 32, flexWrap: "wrap", justifyContent: "center" }}>
+                                <div style={{ fontSize: 11, color: "#4B5563", display: "flex", alignItems: "center", gap: 6, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                    <Shield size={14} /> Pago Seguro
+                                </div>
+                                <div style={{ fontSize: 11, color: "#4B5563", display: "flex", alignItems: "center", gap: 6, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                    <Zap size={14} /> Acceso Inmediato
+                                </div>
+                                <div style={{ fontSize: 11, color: "#4B5563", display: "flex", alignItems: "center", gap: 6, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                    <Clock size={14} /> Cancela cuando quieras
+                                </div>
                             </div>
-                            <div style={{ fontSize: 12, color: "#4B5563", display: "flex", alignItems: "center", gap: 4 }}>
-                                <div style={{ width: 8, height: 8, background: "#10B981", borderRadius: "50%" }}></div> ACCESO INMEDIATO
-                            </div>
-                            <div style={{ fontSize: 12, color: "#4B5563", display: "flex", alignItems: "center", gap: 4 }}>
-                                <div style={{ width: 8, height: 8, background: "#10B981", borderRadius: "50%" }}></div> CANCELA CUANDO QUIERAS
-                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Guarantee Section */}
+            <section style={{ padding: "80px 24px", background: "#030303" }}>
+                <div style={{
+                    maxWidth: 850,
+                    margin: "0 auto",
+                    background: "rgba(13, 13, 20, 0.5)",
+                    border: "1px solid rgba(255,255,255,0.05)",
+                    borderRadius: 40,
+                    padding: "80px 40px",
+                    textAlign: "center"
+                }}>
+                    <div style={{ color: "#8B5CF6", fontSize: 12, fontWeight: 900, letterSpacing: "0.2em", marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                        <Shield size={16} /> CERO RIESGO PARA TI
+                    </div>
+                    <h2 style={{ fontSize: "clamp(32px, 5vw, 48px)", fontWeight: 900, marginBottom: 32 }}>Garantía de Funcionamiento 72hs</h2>
+                    <p style={{ fontSize: 14, fontStyle: "italic", color: "#4B5563", marginBottom: 48 }}>
+                        ClickAds no es para curiosos. Es para dueños de productos físicos que quieren escalar con volumen real.
+                    </p>
+                    <div style={{ display: "flex", gap: 32, justifyContent: "center", flexWrap: "wrap", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 40 }}>
+                        <div style={{ fontSize: 11, color: "#6B7280", display: "flex", alignItems: "center", gap: 8, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                            <Shield size={14} /> REEMBOLSO GARANTIZADO
+                        </div>
+                        <div style={{ fontSize: 11, color: "#6B7280", display: "flex", alignItems: "center", gap: 8, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                            <MessageSquare size={14} /> SOPORTE POR EMAIL
+                        </div>
+                        <div style={{ fontSize: 11, color: "#6B7280", display: "flex", alignItems: "center", gap: 8, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                            <Clock size={14} /> PROCESO EN 24HS
                         </div>
                     </div>
                 </div>
@@ -998,7 +1111,7 @@ export default function Home() {
                             },
                             {
                                 q: "¿Tiene suscripción mensual?",
-                                a: "Es una suscripción mensual. Pagas mes a mes y puedes cancelar o pausar cuando quieras, sin permanencia ni penalidades."
+                                a: "Ofrecemos un plan flexible de pago mensual por solo $27 USD, sin permanencia obligatoria."
                             },
                             {
                                 q: "¿Ya probé Canva/ChatGPT... por qué esto sería distinto?",
@@ -1010,7 +1123,7 @@ export default function Home() {
                             },
                             {
                                 q: "¿Hay algún plan gratuito para probar?",
-                                a: "No ofrecemos plan free. Ofrecemos algo mejor: Garantía de Funcionamiento. Si la app presenta errores técnicos que impidan su uso, te devolvemos el 100% de tu dinero. ClickAds NO es para curiosos, es para dueños de negocios que quieren escalar con volumen real."
+                                a: "No ofrecemos plan free. Ofrecemos algo mejor: Garantía de Funcionamiento. Si la app presenta errores técnicos que impidan su uso, te devolvemos el 100% de tu dinero."
                             }
                         ].map(f => <FaqItem key={f.q} q={f.q} a={f.a} />)}
                     </div>
