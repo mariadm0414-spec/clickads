@@ -32,20 +32,20 @@ export async function POST(req: Request) {
         }
 
         // 2. Realizar el Upsert en authorized_users
-        // Si viene de acceso_total, le damos estatus activo por defecto
         const { error: upsertError } = await supabaseAdmin
             .from('authorized_users')
             .upsert({
                 email: lowEmail,
                 full_name: name,
                 password: password,
-                status: authData?.status || 'active',
-                updated_at: new Date().toISOString()
+                status: authData?.status || 'active'
             }, { onConflict: 'email' });
 
         if (upsertError) {
             console.error("Signup Upsert Error:", upsertError);
-            return NextResponse.json({ error: "Error al guardar el perfil en la base de datos." }, { status: 500 });
+            return NextResponse.json({
+                error: `Error de base de datos: ${upsertError.message} (${upsertError.code})`
+            }, { status: 500 });
         }
 
         return NextResponse.json({ success: true });
