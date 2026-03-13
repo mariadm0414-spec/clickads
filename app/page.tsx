@@ -109,6 +109,12 @@ export default function Home() {
                     .mobile-hide { display: none !important; }
                     .mobile-text-center { text-align: center !important; }
                     .mobile-full { width: 100% !important; }
+                    .mobile-full-padding { padding: 32px 20px !important; }
+                    section { padding: 60px 20px !important; }
+                    .btn-cta { width: 100%; justify-content: center; }
+                    h1 { font-size: 32px !important; }
+                    h2 { font-size: 26px !important; }
+                    .scroll-card { width: 280px !important; height: 280px !important; }
                 }
 
                 @keyframes scroll {
@@ -590,7 +596,7 @@ export default function Home() {
                                 "IMG_8120.jpg", "IMG_8121.jpg", "IMG_8146.jpg", "IMG_8151.jpg", "IMG_8153.jpg",
                                 "IMG_8120.jpg", "IMG_8121.jpg", "IMG_8146.jpg", "IMG_8151.jpg", "IMG_8153.jpg" // Duplicated for seamless loop
                             ].map((img, i) => (
-                                <div key={i} style={{
+                                <div key={i} className="scroll-card" style={{
                                     width: 450,
                                     height: 450,
                                     flexShrink: 0,
@@ -688,7 +694,7 @@ export default function Home() {
                                 "100Ecom_Creativo_1.png", "Ad_0_(3).jpg", "ClickAds_Creativo_2.png", "Ad_1_(2).jpg",
                                 "100Ecom_Creativo_4.png", "ClickAds_Creativo_5.png", "Ad_2_(2).jpg", "100Ecom_Creativo_3.png"
                             ].map((img, i) => (
-                                <div key={`r1-${i}`} style={{ borderRadius: 24, overflow: "hidden", width: 320, height: 320, flexShrink: 0, background: "#0D0D14", border: "1px solid rgba(255,255,255,0.05)" }}>
+                                <div key={`r1-${i}`} className="scroll-card" style={{ borderRadius: 24, overflow: "hidden", width: 320, height: 320, flexShrink: 0, background: "#0D0D14", border: "1px solid rgba(255,255,255,0.05)" }}>
                                     <img src={`/imagenes-creadas/${img}`} alt="Creativo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                                 </div>
                             ))}
@@ -703,7 +709,7 @@ export default function Home() {
                                 "ClickAds_Creativo_1.png", "Ad_0_(4).jpg", "100Ecom_Creativo_2.png", "Ad_1_(3).jpg",
                                 "ClickAds_Creativo_3.png", "100Ecom_Creativo_5.png", "Ad_3_(2).jpg", "ClickAds_Creativo_4.png"
                             ].map((img, i) => (
-                                <div key={`r2-${i}`} style={{ borderRadius: 24, overflow: "hidden", width: 320, height: 320, flexShrink: 0, background: "#0D0D14", border: "1px solid rgba(255,255,255,0.05)" }}>
+                                <div key={`r2-${i}`} className="scroll-card" style={{ borderRadius: 24, overflow: "hidden", width: 320, height: 320, flexShrink: 0, background: "#0D0D14", border: "1px solid rgba(255,255,255,0.05)" }}>
                                     <img src={`/imagenes-creadas/${img}`} alt="Creativo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                                 </div>
                             ))}
@@ -786,6 +792,65 @@ export default function Home() {
                 </div>
             </section>
 
+            {/* New Photo Studio Bonus Section */}
+            <section style={{ padding: "120px 24px", background: "linear-gradient(180deg, #030303 0%, #0D0D14 100%)" }}>
+                <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
+                    <div style={{ background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)", color: "#A78BFA", fontSize: 12, fontWeight: 800, padding: "8px 20px", borderRadius: 100, display: "inline-block", marginBottom: 24 }}>
+                        ¡NUEVO SUPER BONUS EXCLUSIVO! 🎁
+                    </div>
+                    <h2 style={{ fontSize: "clamp(36px, 6vw, 64px)", fontWeight: 900, lineHeight: 1.1, marginBottom: 24 }}>
+                        Acceso a <span className="gradient-text">Photo Studio AI</span>
+                    </h2>
+                    <p style={{ fontSize: 20, color: "#9CA3AF", maxWidth: 800, margin: "0 auto 64px", lineHeight: 1.6 }}>
+                        No solo generamos anuncios. También transformamos tus fotos caseras en **sesiones de fotos profesionales con modelos** y fondos 3D de alta gama.
+                    </p>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }} className="mobile-stack">
+                        <div style={{ position: "relative" }}>
+                            <BeforeAfterSlider
+                                before="/photo-studio/antes.jpg"
+                                after="/photo-studio/modelo.jpg"
+                                beforeLabel="FOTO CELULAR"
+                                afterLabel="RESULTADO CON MODELO IA"
+                            />
+                            <p style={{ marginTop: 20, color: "#9CA3AF", fontSize: 14, fontWeight: 600 }}>← Desliza para ver la transformación →</p>
+                        </div>
+                        <div style={{ textAlign: "left" }}>
+                            <h3 style={{ fontSize: 32, fontWeight: 900, marginBottom: 24 }}>Pon tu producto en manos de modelos profesionales</h3>
+                            <p style={{ fontSize: 18, color: "#D1D5DB", lineHeight: 1.6, marginBottom: 32 }}>
+                                Agrega autoridad y confianza a tu marca sin gastar miles de dólares en estudios, fotógrafos o modelos reales. Nuestra IA integra tu producto de forma natural en cualquier escenario.
+                            </p>
+                            <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 24, padding: 32 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
+                                    <div style={{ background: "#8B5CF6", color: "#fff", width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>✓</div>
+                                    <span style={{ fontWeight: 700 }}>Elige género y estilo del modelo</span>
+                                </div>
+                                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                                    <div style={{ background: "#8B5CF6", color: "#fff", width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>✓</div>
+                                    <span style={{ fontWeight: 700 }}>Entornos realistas (Baño, Calle, Casa, etc.)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style={{ marginTop: 80, padding: "60px", background: "rgba(255,255,255,0.02)", borderRadius: 40, border: "1px solid rgba(255,255,255,0.05)" }} className="mobile-full-padding">
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }} className="mobile-stack">
+                            <div style={{ textAlign: "left" }}>
+                                <h3 style={{ fontSize: 32, fontWeight: 900, marginBottom: 24 }}>También Limpieza de Fondo 3D</h3>
+                                <p style={{ fontSize: 18, color: "#D1D5DB", lineHeight: 1.6, marginBottom: 32 }}>
+                                    Si prefieres un catálogo limpio, genera fondos blancos infinitos con sombras 3D perfectas para tu tienda online.
+                                </p>
+                                <Link href="#precio" className="btn-primary" style={{ padding: "16px 32px" }}>OFERTA DISPONIBLE AQUÍ</Link>
+                            </div>
+                            <div style={{ borderRadius: 24, overflow: "hidden", boxShadow: "0 20px 40px rgba(0,0,0,0.5)" }}>
+                                <img src="/photo-studio/fondo-blanco.jpg" alt="Fondo Blanco 3D" style={{ width: "100%", display: "block" }} />
+                                <div style={{ padding: "12px", background: "#fff", color: "#000", fontWeight: 900, fontSize: 12 }}>CATÁLOGO LIMPIO 3D</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
 
 
 
@@ -820,6 +885,7 @@ export default function Home() {
                                 { t: "BONUS: Plantillas de Copy", v: "$100.347" },
                                 { t: "BONUS: Guía de Ángulos", v: "$82.310" },
                                 { t: "BONUS: Comunidad Privada", v: "$149.421" },
+                                { t: "BONUS: Photo Studio AI (Modelos & 3D)", v: "$199.999" },
                                 { t: "BONUS: Updates de por Vida", v: "Incalculable" }
                             ].map((item, idx) => (
                                 <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 14 }}>
