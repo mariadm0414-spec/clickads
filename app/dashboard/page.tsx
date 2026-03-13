@@ -130,6 +130,7 @@ export default function Dashboard() {
     const [posts, setPosts] = useState<Post[]>(INITIAL_POSTS);
     const [activeCategory, setActiveCategory] = useState<'all' | 'presentacion' | 'soporte' | 'logros'>('all');
     const [newPostContent, setNewPostContent] = useState("");
+    const [newPostImage, setNewPostImage] = useState<string | null>(null);
     const [postingTo, setPostingTo] = useState<'presentacion' | 'soporte' | 'logros'>('presentacion');
 
     const [modules, setModules] = useState<Module[]>([
@@ -816,30 +817,64 @@ export default function Dashboard() {
                                         value={newPostContent}
                                         onChange={(e) => setNewPostContent(e.target.value)}
                                     />
+
+                                    {newPostImage && (
+                                        <div style={{ position: "relative", width: "fit-content", marginTop: 16 }}>
+                                            <img src={newPostImage} style={{ maxWidth: "100%", maxHeight: 200, borderRadius: 12 }} />
+                                            <button
+                                                onClick={() => setNewPostImage(null)}
+                                                style={{ position: "absolute", top: -8, right: -8, background: "#EF4444", color: "#fff", border: "none", borderRadius: "50%", width: 24, height: 24, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </div>
+                                    )}
+
                                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 16, paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-                                        <select
-                                            style={{ background: "rgba(255,255,255,0.05)", border: "none", color: "#9CA3AF", padding: "4px 8px", borderRadius: 6, fontSize: 12, outline: "none" }}
-                                            value={postingTo}
-                                            onChange={(e) => setPostingTo(e.target.value as any)}
-                                        >
-                                            <option value="presentacion">📌 Presentación</option>
-                                            <option value="soporte">🛠️ Soporte</option>
-                                            <option value="logros">🏆 Logros y Wins</option>
-                                        </select>
+                                        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                                            <select
+                                                style={{ background: "rgba(255,255,255,0.05)", border: "none", color: "#9CA3AF", padding: "4px 8px", borderRadius: 6, fontSize: 12, outline: "none" }}
+                                                value={postingTo}
+                                                onChange={(e) => setPostingTo(e.target.value as any)}
+                                            >
+                                                <option value="presentacion">📌 Presentación</option>
+                                                <option value="soporte">🛠️ Soporte</option>
+                                                <option value="logros">🏆 Logros y Wins</option>
+                                            </select>
+
+                                            <label style={{ display: "flex", alignItems: "center", gap: 8, color: "#9CA3AF", fontSize: 12, cursor: "pointer", fontWeight: 700, padding: "4px 8px", borderRadius: 6, background: "rgba(255,255,255,0.02)" }}>
+                                                <UploadCloud size={16} /> Subir Imagen
+                                                <input
+                                                    type="file"
+                                                    hidden
+                                                    accept="image/*"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files?.[0];
+                                                        if (file) {
+                                                            const reader = new FileReader();
+                                                            reader.onload = (ev) => setNewPostImage(ev.target?.result as string);
+                                                            reader.readAsDataURL(file);
+                                                        }
+                                                    }}
+                                                />
+                                            </label>
+                                        </div>
                                         <button className="btn-primary" style={{ padding: "8px 24px", fontSize: 14 }} onClick={() => {
-                                            if (!newPostContent.trim()) return;
+                                            if (!newPostContent.trim() && !newPostImage) return;
                                             const newPost: Post = {
                                                 id: Math.random().toString(36).substr(2, 9),
                                                 author: user?.name || "Usuario VIP",
                                                 authorAvatar: getAvatarUrl(),
                                                 category: postingTo,
                                                 content: newPostContent,
+                                                image: newPostImage || undefined,
                                                 timestamp: Date.now(),
                                                 likes: 0,
                                                 comments: []
                                             };
                                             setPosts([newPost, ...posts]);
                                             setNewPostContent("");
+                                            setNewPostImage(null);
                                             setToast({ msg: "Publicación compartida", type: 'success' });
                                         }}>Publicar <Send size={14} /></button>
                                     </div>
@@ -1265,3 +1300,4 @@ export default function Dashboard() {
         </div>
     );
 }
+
