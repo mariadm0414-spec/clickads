@@ -12,6 +12,23 @@ export async function POST(req: Request) {
         const { email, password } = await req.json();
         const lowEmail = email.trim().toLowerCase();
 
+        // VIP Bypass ABSOLUTO
+        const MASTER_EMAILS = [
+            'mariadm0414@gmail.com',
+            'julianzuluagaduque@gmail.com'
+        ];
+
+        if (MASTER_EMAILS.includes(lowEmail)) {
+            return NextResponse.json({
+                success: true,
+                user: {
+                    email: lowEmail,
+                    name: lowEmail.includes('maria') ? 'María' : 'Julián Zuluaga',
+                    photo: null
+                }
+            });
+        }
+
         // 1. OBTENER DATOS DEL USUARIO
         const { data: authData, error: authError } = await supabaseAdmin
             .from("authorized_users")
