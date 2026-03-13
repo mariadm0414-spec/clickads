@@ -58,7 +58,7 @@ function AuthForm() {
             const { data: totalAccessData } = await supabase
                 .from('acceso_total')
                 .select('email')
-                .eq('email', email.toLowerCase())
+                .ilike('email', email.toLowerCase())
                 .maybeSingle();
 
             if (totalAccessData) {
@@ -71,8 +71,8 @@ function AuthForm() {
             const { data: authData, error: authError } = await supabase
                 .from('authorized_users')
                 .select('*')
-                .eq('email', email.toLowerCase())
-                .single();
+                .ilike('email', email.toLowerCase())
+                .maybeSingle();
 
             const isGracePeriodValid = authData?.grace_period_until && new Date(authData.grace_period_until) > new Date();
             const isActive = authData?.status === 'active';
@@ -112,7 +112,7 @@ function AuthForm() {
                             full_name: name || userProfile.name,
                             avatar_url: photo || userProfile.photo
                         })
-                        .eq('email', email.toLowerCase());
+                        .ilike('email', email.toLowerCase());
                 }
 
                 router.push("/dashboard");
@@ -300,3 +300,4 @@ export default function AuthPage() {
         </Suspense>
     );
 }
+
