@@ -88,7 +88,7 @@ function BeforeAfterSlider({
 
 export default function Home() {
     return (
-        <div style={{ background: "#030303", minHeight: "100vh", color: "#fff", fontFamily: "'Inter', sans-serif" }}>
+        <div style={{ background: "#030303", minHeight: "100vh", color: "#fff", fontFamily: "'Inter', sans-serif", overflowX: "hidden", position: "relative" }}>
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
                 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -105,16 +105,27 @@ export default function Home() {
                 .feature-card:hover { border-color: rgba(139,92,246,0.3); background: rgba(139,92,246,0.06); }
 
                 @media (max-width: 768px) {
-                    .mobile-stack { flex-direction: column !important; }
+                    .mobile-stack { 
+                        display: flex !important; 
+                        flex-direction: column !important; 
+                        gap: 24px !important;
+                    }
+                    .mobile-grid-1 {
+                        display: grid !important;
+                        grid-template-columns: 1fr !important;
+                        gap: 24px !important;
+                    }
                     .mobile-hide { display: none !important; }
                     .mobile-text-center { text-align: center !important; }
                     .mobile-full { width: 100% !important; }
                     .mobile-full-padding { padding: 32px 20px !important; }
                     section { padding: 60px 20px !important; }
-                    .btn-cta { width: 100%; justify-content: center; }
-                    h1 { font-size: 32px !important; }
-                    h2 { font-size: 26px !important; }
+                    .btn-cta { width: 100%; justify-content: center; padding: 20px !important; font-size: 18px !important; }
+                    h1 { font-size: 32px !important; line-height: 1.2 !important; }
+                    h2 { font-size: 26px !important; line-height: 1.2 !important; }
+                    h3 { font-size: 22px !important; line-height: 1.2 !important; }
                     .scroll-card { width: 280px !important; height: 280px !important; }
+                    .slider-container { width: 100% !important; max-width: 320px !important; margin: 0 auto !important; }
                 }
 
                 @keyframes scroll {
@@ -373,7 +384,7 @@ export default function Home() {
 
             {/* Deluxe Showcase Section */}
             <section style={{ padding: "120px 24px", background: "linear-gradient(180deg, #0D0D14 0%, #030303 100%)" }}>
-                <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }} className="mobile-stack">
+                <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }} className="mobile-grid-1">
                     <div style={{ textAlign: "left" }}>
                         <div style={{ background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)", color: "#A78BFA", fontSize: 10, fontWeight: 800, padding: "6px 16px", borderRadius: 100, display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 24 }}>
                             <Sparkles size={12} /> GENERADOR DE IMÁGENES CON IA
@@ -403,7 +414,7 @@ export default function Home() {
                         </Link>
                     </div>
 
-                    <div style={{ position: "relative" }}>
+                    <div style={{ position: "relative" }} className="slider-container">
                         <BeforeAfterSlider
                             before="/100ecom/antes-coffee.jpg"
                             after="/100ecom/coffee_final_ad.jpg"
@@ -423,7 +434,7 @@ export default function Home() {
                     Una APP de Volumen Extremo de Creativos para Productos Físicos
                 </p>
 
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, maxWidth: 1200, margin: "0 auto 60px" }} className="mobile-stack">
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, maxWidth: 1200, margin: "0 auto 60px" }} className="mobile-grid-1">
                     {[
                         {
                             num: "01",
@@ -547,7 +558,7 @@ export default function Home() {
                         La diferencia no es "usar IA". La diferencia es el <span style={{ color: "#fff", fontWeight: 700 }}>mecanismo:</span>
                     </p>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, maxWidth: 1200, margin: "0 auto" }} className="mobile-stack">
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, maxWidth: 1200, margin: "0 auto" }} className="mobile-grid-1">
                         {[
                             {
                                 icon: "🏭",
@@ -618,7 +629,7 @@ export default function Home() {
                     <h2 style={{ fontSize: "clamp(32px, 6vw, 56px)", fontWeight: 900, marginBottom: 16 }}>Todo Lo Que Incluye Tu Acceso</h2>
                     <p style={{ fontSize: 18, color: "#9CA3AF", marginBottom: 64, opacity: 0.7 }}>El sistema completo para escalar tu operación creativa.</p>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, maxWidth: 1100, margin: "0 auto" }} className="mobile-stack">
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, maxWidth: 1100, margin: "0 auto" }} className="mobile-grid-1">
                         {[
                             {
                                 num: "1",
@@ -722,7 +733,7 @@ export default function Home() {
                     <h2 style={{ fontSize: "clamp(32px, 6vw, 56px)", fontWeight: 900, marginBottom: 16 }}>Pero eso no es todo...</h2>
                     <p style={{ fontSize: 18, color: "#9CA3AF", marginBottom: 64, opacity: 0.7 }}>También recibes estos <span style={{ color: "#A78BFA", fontWeight: 800 }}>BONUS GRATIS</span> al unirte hoy.</p>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, maxWidth: 1100, margin: "0 auto" }} className="mobile-stack">
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, maxWidth: 1100, margin: "0 auto" }} className="mobile-grid-1">
                         {[
                             {
                                 num: "1",
@@ -805,8 +816,8 @@ export default function Home() {
                         No solo generamos anuncios. También transformamos tus fotos caseras en **sesiones de fotos profesionales con modelos** y fondos 3D de alta gama.
                     </p>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }} className="mobile-stack">
-                        <div style={{ position: "relative" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }} className="mobile-grid-1">
+                        <div style={{ position: "relative" }} className="slider-container">
                             <BeforeAfterSlider
                                 before="/photo-studio/antes.jpg"
                                 after="/photo-studio/modelo.jpg"
@@ -834,7 +845,7 @@ export default function Home() {
                     </div>
 
                     <div style={{ marginTop: 80, padding: "60px", background: "rgba(255,255,255,0.02)", borderRadius: 40, border: "1px solid rgba(255,255,255,0.05)" }} className="mobile-full-padding">
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }} className="mobile-stack">
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }} className="mobile-grid-1">
                             <div style={{ textAlign: "left" }}>
                                 <h3 style={{ fontSize: 32, fontWeight: 900, marginBottom: 24 }}>También Limpieza de Fondo 3D</h3>
                                 <p style={{ fontSize: 18, color: "#D1D5DB", lineHeight: 1.6, marginBottom: 32 }}>
