@@ -164,6 +164,14 @@ export default function Dashboard() {
     const [showApiModal, setShowApiModal] = useState(false);
     const [tempApiKey, setTempApiKey] = useState("");
 
+    // Photo Studio States
+    const [studioImage, setStudioImage] = useState<string | null>(null);
+    const [studioMode, setStudioMode] = useState<'white_3d' | 'model'>('white_3d');
+    const [studioGender, setStudioGender] = useState<'male' | 'female'>('female');
+    const [studioBackgroundDesc, setStudioBackgroundDesc] = useState("");
+    const [studioResult, setStudioResult] = useState<string | null>(null);
+    const [isStudioLoading, setIsStudioLoading] = useState(false);
+
     useEffect(() => {
         if (toast) {
             const timer = setTimeout(() => setToast(null), 3000);
@@ -583,6 +591,7 @@ export default function Dashboard() {
                 <nav style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
                     <div className={`nav-item ${activeTab === 'generator' ? 'active' : ''}`} onClick={() => setActiveTab('generator')}><Sparkles size={20} /> Genera Creativos</div>
                     <div className={`nav-item ${activeTab === 'library' ? 'active' : ''}`} onClick={() => setActiveTab('library')}><Library size={20} /> Biblioteca</div>
+                    <div className={`nav-item ${activeTab === 'studio' ? 'active' : ''}`} onClick={() => setActiveTab('studio')}><Video size={20} /> Photo Studio</div>
                     <div className={`nav-item ${activeTab === 'community' ? 'active' : ''}`} onClick={() => setActiveTab('community')}><Users size={20} /> Comunidad</div>
                     <div className={`nav-item ${activeTab === 'tutorials' ? 'active' : ''}`} onClick={() => setActiveTab('tutorials')}><PlayCircle size={20} /> Tutoriales</div>
                     <div className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}><Settings size={20} /> Configuración</div>
@@ -786,6 +795,163 @@ export default function Dashboard() {
                                 </div>
                             </div>
                         )}
+                    </div>
+                )}
+
+                {activeTab === 'studio' && (
+                    <div style={{ maxWidth: 1100 }}>
+                        <h1 style={{ fontSize: 32, fontWeight: 900, marginBottom: 12 }}>Photo Studio Pro</h1>
+                        <p style={{ color: "#9CA3AF", fontSize: 16, marginBottom: 40 }}>Transforma tus fotos básicas en contenido publicitario de alto nivel.</p>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "400px 1fr", gap: 40 }}>
+                            <div className="glass-card" style={{ padding: 40, height: "fit-content" }}>
+                                <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+                                    <div>
+                                        <label style={{ display: "block", fontSize: 12, fontWeight: 800, color: "#8B5CF6", marginBottom: 12 }}>PRODUCTO</label>
+                                        <div style={{ border: "2px dashed rgba(255,255,255,0.1)", borderRadius: 24, height: 260, position: "relative", marginBottom: 24, overflow: "hidden" }}>
+                                            <input type="file" accept="image/*" onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    const reader = new FileReader();
+                                                    reader.onload = (ev) => setStudioImage(ev.target?.result as string);
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            }} style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer", zIndex: 10 }} />
+                                            {studioImage ? (
+                                                <img src={studioImage} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                                            ) : (
+                                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 12, opacity: 0.3 }}>
+                                                    <UploadCloud /> <span>Sube la foto del producto</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label style={{ display: "block", fontSize: 12, fontWeight: 800, color: "#8B5CF6", marginBottom: 12 }}>HERRAMIENTA</label>
+                                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                                            <button
+                                                onClick={() => setStudioMode('white_3d')}
+                                                style={{ padding: "12px", borderRadius: 12, fontSize: 12, fontWeight: 800, cursor: "pointer", border: studioMode === 'white_3d' ? "2px solid #8B5CF6" : "1px solid rgba(255,255,255,0.1)", background: studioMode === 'white_3d' ? "rgba(139,92,246,0.1)" : "transparent", color: studioMode === 'white_3d' ? "#8B5CF6" : "#9CA3AF" }}
+                                            >
+                                                Fondo Blanco 3D
+                                            </button>
+                                            <button
+                                                onClick={() => setStudioMode('model')}
+                                                style={{ padding: "12px", borderRadius: 12, fontSize: 12, fontWeight: 800, cursor: "pointer", border: studioMode === 'model' ? "2px solid #8B5CF6" : "1px solid rgba(255,255,255,0.1)", background: studioMode === 'model' ? "rgba(139,92,246,0.1)" : "transparent", color: studioMode === 'model' ? "#8B5CF6" : "#9CA3AF" }}
+                                            >
+                                                Foto con Modelo
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {studioMode === 'model' && (
+                                        <>
+                                            <div>
+                                                <label style={{ display: "block", fontSize: 12, fontWeight: 800, color: "#8B5CF6", marginBottom: 12 }}>GÉNERO DEL MODELO</label>
+                                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                                                    <button
+                                                        onClick={() => setStudioGender('female')}
+                                                        style={{ padding: "10px", borderRadius: 12, fontSize: 11, fontWeight: 800, cursor: "pointer", border: studioGender === 'female' ? "2px solid #8B5CF6" : "1px solid rgba(255,255,255,0.1)", background: studioGender === 'female' ? "rgba(139,92,246,0.1)" : "transparent", color: studioGender === 'female' ? "#8B5CF6" : "#9CA3AF" }}
+                                                    >
+                                                        Mujer
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setStudioGender('male')}
+                                                        style={{ padding: "10px", borderRadius: 12, fontSize: 11, fontWeight: 800, cursor: "pointer", border: studioGender === 'male' ? "2px solid #8B5CF6" : "1px solid rgba(255,255,255,0.1)", background: studioGender === 'male' ? "rgba(139,92,246,0.1)" : "transparent", color: studioGender === 'male' ? "#8B5CF6" : "#9CA3AF" }}
+                                                    >
+                                                        Hombre
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label style={{ display: "block", fontSize: 12, fontWeight: 800, color: "#8B5CF6", marginBottom: 12 }}>ESCENARIO / FONDO</label>
+                                                <textarea
+                                                    className="input-field"
+                                                    placeholder="Ej: En un baño de lujo con mármol... (Dejar vacío para fondo blanco)"
+                                                    style={{ height: 80 }}
+                                                    value={studioBackgroundDesc}
+                                                    onChange={(e) => setStudioBackgroundDesc(e.target.value)}
+                                                />
+                                            </div>
+                                        </>
+                                    )}
+
+                                    <button
+                                        className="btn-primary"
+                                        style={{ width: "100%", justifyContent: "center" }}
+                                        onClick={async () => {
+                                            if (!studioImage) {
+                                                setToast({ msg: "Por favor, sube una foto primero", type: 'error' });
+                                                return;
+                                            }
+                                            if (!apiKey) {
+                                                setShowApiModal(true);
+                                                setToast({ msg: "Configura tu API Key primero", type: 'error' });
+                                                return;
+                                            }
+                                            setIsStudioLoading(true);
+                                            try {
+                                                const res = await fetch("/api/vertex-ai/photo-studio", {
+                                                    method: "POST",
+                                                    headers: { "Content-Type": "application/json" },
+                                                    body: JSON.stringify({
+                                                        productBase64: studioImage,
+                                                        mode: studioMode,
+                                                        apiKey,
+                                                        gender: studioGender,
+                                                        customBackground: studioBackgroundDesc
+                                                    })
+                                                });
+                                                const data = await res.json();
+                                                if (data.image) {
+                                                    setStudioResult(data.image);
+                                                    setToast({ msg: "¡Procesado con éxito!", type: 'success' });
+                                                } else {
+                                                    setToast({ msg: data.error || "Error al procesar", type: 'error' });
+                                                }
+                                            } catch (e) {
+                                                setToast({ msg: "Error de conexión", type: 'error' });
+                                            } finally {
+                                                setIsStudioLoading(false);
+                                            }
+                                        }}
+                                        disabled={isStudioLoading}
+                                    >
+                                        {isStudioLoading ? <Loader2 className="animate-spin" /> : <><Sparkles size={18} /> Procesar en Studio</>}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="glass-card" style={{ padding: 40, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.01)" }}>
+                                {studioResult ? (
+                                    <div style={{ width: "100%", position: "relative" }}>
+                                        <img src={studioResult} style={{ width: "100%", borderRadius: 24, boxShadow: "0 20px 50px rgba(0,0,0,0.5)" }} />
+                                        <div style={{ position: "absolute", top: 20, right: 20, display: "flex", gap: 12 }}>
+                                            <button
+                                                onClick={() => {
+                                                    const link = document.createElement("a");
+                                                    link.href = studioResult;
+                                                    link.download = `photo_studio_${Date.now()}.png`;
+                                                    link.click();
+                                                }}
+                                                className="btn-primary"
+                                                style={{ padding: "10px 20px", fontSize: 12 }}
+                                            >
+                                                <Download size={14} /> Descargar
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div style={{ textAlign: "center", opacity: 0.3 }}>
+                                        <Video size={64} style={{ marginBottom: 20 }} />
+                                        <h3 style={{ fontSize: 20, fontWeight: 800 }}>Esperando Acción</h3>
+                                        <p>Configura los parámetros a la izquierda y pulsa Procesar.</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -1300,4 +1466,3 @@ export default function Dashboard() {
         </div>
     );
 }
-
