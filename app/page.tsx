@@ -153,12 +153,13 @@ export default function Home() {
                     La APP #1 para Dropshipping & Ecommerce 🚀
                 </div>
                 <h1 style={{ fontSize: "clamp(40px, 8vw, 72px)", fontWeight: 900, lineHeight: 1.1, letterSpacing: "-0.05em", marginBottom: 32 }}>
-                    Convierte tus fotos en <span className="gradient-text">+100 Creativos</span><br />
-                    que venden en solo 10 minutos
+                    Transforma tus fotos de celular en <br />
+                    <span className="gradient-text">más de 100 creativos irresistibles</span><br />
+                    que venden, ¡en solo 10 minutos!
                 </h1>
                 <p style={{ fontSize: 20, color: "#9CA3AF", maxWidth: 850, margin: "0 auto 48px", lineHeight: 1.6 }}>
                     Deja de pelear con Canva y diseñadores lentos. Genera imágenes listas para Meta Ads con los ángulos de venta que realmente convierten.<br /><br />
-                    <strong>Sin límites de creación. Úsala para todos tus productos.</strong>
+                    <strong style={{ color: "#A78BFA" }}>Sin límites de creación. Úsala para todos tus productos.</strong>
                 </p>
 
                 <div style={{ maxWidth: 800, margin: "0 auto 64px", borderRadius: 32, overflow: "hidden", boxShadow: "0 30px 60px rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.2)" }}>
