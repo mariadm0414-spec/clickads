@@ -25,9 +25,19 @@ function AuthForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
+    const [photo, setPhoto] = useState<string | null>(null);
     const [code, setCode] = useState("");
     const [error, setError] = useState("");
     const [toastMsg, setToastMsg] = useState("");
+
+    const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => setPhoto(event.target?.result as string);
+            reader.readAsDataURL(file);
+        }
+    };
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -78,7 +88,26 @@ function AuthForm() {
             }
 
             if (mode === 'login' || mode === 'register') {
-                localStorage.setItem("clickads_user", JSON.stringify({ email, name: name || 'Usuario VIP' }));
+                // Guardar perfil completo en localStorage
+                const userProfile = {
+                    email,
+                    name: name || authData?.full_name || 'Usuario VIP',
+                    photo: photo || authData?.avatar_url || null
+                };
+
+                localStorage.setItem("clickads_user", JSON.stringify(userProfile));
+
+                // Si estamos registrando, actualizar Supabase con el nombre y foto
+                if (mode === 'register' || !authData?.full_name) {
+                    await supabase
+                        .from('authorized_users')
+                        .update({
+                            full_name: name || userProfile.name,
+                            avatar_url: photo || userProfile.photo
+                        })
+                        .eq('email', email.toLowerCase());
+                }
+
                 router.push("/dashboard");
             } else if (mode === 'forgot') {
                 setToastMsg("Código enviado a " + email);
@@ -165,10 +194,27 @@ function AuthForm() {
 
                 <form onSubmit={handleAuth}>
                     {mode === 'register' && (
-                        <div className="input-group">
-                            <Mail className="input-icon" size={20} />
-                            <input className="input-field" placeholder="Nombre completo" value={name} onChange={(e) => setName(e.target.value)} required />
-                        </div>
+                        <>
+                            <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
+                                <div style={{ position: "relative", width: 100, height: 100, borderRadius: "50%", background: "rgba(255,255,255,0.05)", border: "2px dashed rgba(139, 92, 246, 0.3)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", overflow: "hidden" }}>
+                                    <input type="file" hidden id="reg-photo" accept="image/*" onChange={handlePhotoChange} />
+                                    <label htmlFor="reg-photo" style={{ position: "absolute", inset: 0, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                        {photo ? (
+                                            <img src={photo} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                        ) : (
+                                            <div style={{ textAlign: "center", opacity: 0.5 }}>
+                                                <UploadCloud size={24} style={{ marginBottom: 4 }} />
+                                                <div style={{ fontSize: 10, fontWeight: 800 }}>FOTO</div>
+                                            </div>
+                                        )}
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="input-group">
+                                <User className="input-icon" size={20} />
+                                <input className="input-field" placeholder="Nombre completo" value={name} onChange={(e) => setName(e.target.value)} required />
+                            </div>
+                        </>
                     )}
 
                     {(mode === 'login' || mode === 'register' || mode === 'forgot') && (
@@ -247,4 +293,3 @@ export default function AuthPage() {
         </Suspense>
     );
 }
-
