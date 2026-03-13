@@ -45,29 +45,44 @@ function AuthForm() {
         setError("");
 
         try {
-            // 1. BYPASS PARA ADMIN Y LISTA BLANCA DE PRUEBAS
-            const isAllowedManual = ALLOWED_EMAILS.includes(email.toLowerCase()) || email.toLowerCase() === 'admin@clickads.com';
+            const lowEmail = email.toLowerCase();
 
-            if (isAllowedManual) {
-                localStorage.setItem("clickads_user", JSON.stringify({ email, name: name || 'Usuario de Prueba' }));
-                router.push("/dashboard");
-                return;
-            }
-
-            // 2. CHECK EN TABLA acceso_total (ACCESO INDEFINIDO)
+            // 1. PRIORIDAD ABSOLUTA: CHECK EN TABLA acceso_total (CONTROL TOTAL)
             const { data: totalAccessData } = await supabase
                 .from('acceso_total')
-                .select('email')
-                .ilike('email', email.toLowerCase())
+                .select('*')
+                .ilike('email', lowEmail)
                 .maybeSingle();
 
             if (totalAccessData) {
-                localStorage.setItem("clickads_user", JSON.stringify({ email, name: name || 'Acceso Total' }));
+                // Si está en acceso_total, buscamos si tiene nombre en authorized_users para que se vea bien
+                const { data: extraInfo } = await supabase
+                    .from('authorized_users')
+                    .select('full_name, avatar_url')
+                    .ilike('email', lowEmail)
+                    .maybeSingle();
+
+                const userProfile = {
+                    email: lowEmail,
+                    name: extraInfo?.full_name || 'Acceso VIP',
+                    photo: extraInfo?.avatar_url || null
+                };
+
+                localStorage.setItem("clickads_user", JSON.stringify(userProfile));
                 router.push("/dashboard");
                 return;
             }
 
-            // 3. CHECK EN TABLA authorized_users (CLIENTES HOTMART)
+            // 2. BYPASS PARA LISTA BLANCA LOCAL (MANTENIMIENTO)
+            const isAllowedManual = ALLOWED_EMAILS.includes(lowEmail) || lowEmail === 'admin@clickads.com';
+
+            if (isAllowedManual) {
+                localStorage.setItem("clickads_user", JSON.stringify({ email: lowEmail, name: name || 'Admin / Test' }));
+                router.push("/dashboard");
+                return;
+            }
+
+            // 3. CHECK EN TABLA authorized_users (CLIENTES HOTMART - FLUJO NORMAL)
             const { data: authData, error: authError } = await supabase
                 .from('authorized_users')
                 .select('*')
@@ -300,4 +315,3 @@ export default function AuthPage() {
         </Suspense>
     );
 }
-
