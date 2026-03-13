@@ -1,11 +1,3 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-// Database config (Server-side)
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-    process.env.SUPABASE_SERVICE_ROLE_KEY || "" // Note: Use Service Role for backend writes
-);
 
 export async function POST(req: Request) {
     let body;
