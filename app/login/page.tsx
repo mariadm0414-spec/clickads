@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Sparkles, Mail, Lock, ArrowRight, ArrowLeft, Loader2, CheckCircle2, AlertCircle, ShieldCheck, KeyRound } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/app/lib/supabase";
@@ -8,7 +8,7 @@ import { supabase } from "@/app/lib/supabase";
 // Lista blanca simulada (Supabase Mock)
 const ALLOWED_EMAILS = ["admin@clickads.com", "user@test.com", "cliente@vip.com", "prueba@clickads.com"];
 
-export default function AuthPage() {
+function AuthForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [mode, setMode] = useState<'login' | 'register' | 'forgot' | 'verify'>('login');
@@ -20,19 +20,20 @@ export default function AuthPage() {
             setMode(urlMode as any);
         }
     }, [searchParams]);
+
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
     const [code, setCode] = useState("");
     const [error, setError] = useState("");
+    const [toastMsg, setToastMsg] = useState("");
 
     const handleAuth = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setError("");
 
-        // Real validation against authorized_users (Supabase)
         try {
             // BYPASS PARA ADMIN Y LISTA BLANCA DE PRUEBAS
             const isAllowedManual = ALLOWED_EMAILS.includes(email.toLowerCase()) || email.toLowerCase() === 'admin@clickads.com';
@@ -83,8 +84,6 @@ export default function AuthPage() {
         }
     };
 
-    const [toastMsg, setToastMsg] = useState("");
-
     return (
         <div style={{
             background: "#030303",
@@ -125,8 +124,6 @@ export default function AuthPage() {
                     width: 100%; background: #8B5CF6; color: #fff; border: none; padding: 18px; border-radius: 18px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 10px;
                 }
                 .btn-auth:hover { background: #7C3AED; transform: translateY(-2px); box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4); }
-                .error-box { background: rgba(239, 68, 68, 0.1); border: 1px solid #EF4444; color: #EF4444; padding: 16px; borderRadius: 12px; fontSize: 13, fontWeight: 700; marginBottom: 24, display: 'flex', gap: 12, alignItems: 'center' }
-                .toast { position: fixed, bottom: 40, left: 50%, transform: translateX(-50%), background: #10B981, color: #fff, padding: '12px 24px', borderRadius: 100, fontWeight: 800, fontSize: 13, zIndex: 1000 }
             `}</style>
 
             <div className="glow" />
@@ -225,3 +222,14 @@ export default function AuthPage() {
     );
 }
 
+export default function AuthPage() {
+    return (
+        <Suspense fallback={
+            <div style={{ background: "#030303", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Loader2 className="animate-spin" color="#8B5CF6" size={48} />
+            </div>
+        }>
+            <AuthForm />
+        </Suspense>
+    );
+}
