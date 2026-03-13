@@ -179,13 +179,14 @@ export default function Home() {
                     .mobile-text-center { text-align: center !important; }
                     .mobile-full { width: 100% !important; }
                     .mobile-full-padding { padding: 32px 20px !important; }
-                    section { padding: 60px 20px !important; }
+                    section { padding: 40px 20px !important; }
                     .btn-cta { width: 100%; justify-content: center; padding: 20px !important; font-size: 18px !important; }
                     h1 { font-size: 32px !important; line-height: 1.2 !important; }
                     h2 { font-size: 26px !important; line-height: 1.2 !important; }
                     h3 { font-size: 22px !important; line-height: 1.2 !important; }
                     .scroll-card { width: 280px !important; height: 280px !important; }
                     .slider-container { width: 100% !important; max-width: 320px !important; margin: 0 auto !important; }
+                    .hero-badge { white-space: normal !important; line-height: 1.4 !important; }
                 }
 
                 @keyframes scroll {
@@ -225,8 +226,11 @@ export default function Home() {
             </nav>
 
             {/* Hero Section */}
-            <section style={{ padding: "160px 24px 60px", maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
-                <div style={{ background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)", color: "#A78BFA", fontSize: 12, fontWeight: 800, padding: "6px 16px", borderRadius: 100, display: "inline-block", marginBottom: 24 }}>
+            <section style={{ padding: "120px 24px 40px", maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
+                <div
+                    className="hero-badge"
+                    style={{ background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)", color: "#A78BFA", fontSize: 12, fontWeight: 800, padding: "8px 20px", borderRadius: 100, display: "inline-block", marginBottom: 24, maxWidth: "100%" }}
+                >
                     La APP #1 para Dropshipping & Ecommerce 🚀
                 </div>
                 <h1 style={{ fontSize: "clamp(40px, 8vw, 72px)", fontWeight: 900, lineHeight: 1.1, letterSpacing: "-0.05em", marginBottom: 32 }}>
@@ -443,20 +447,20 @@ export default function Home() {
 
 
             {/* Deluxe Showcase Section */}
-            <section style={{ padding: "120px 24px", background: "linear-gradient(180deg, #0D0D14 0%, #030303 100%)" }}>
-                <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }} className="mobile-grid-1">
-                    <div style={{ textAlign: "left" }}>
+            <section style={{ padding: "80px 24px", background: "linear-gradient(180deg, #0D0D14 0%, #030303 100%)" }}>
+                <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }} className="mobile-grid-1">
+                    <div style={{ textAlign: "center" }}>
                         <div style={{ background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)", color: "#A78BFA", fontSize: 10, fontWeight: 800, padding: "6px 16px", borderRadius: 100, display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 24 }}>
                             <Sparkles size={12} /> GENERADOR DE IMÁGENES CON IA
                         </div>
-                        <h2 style={{ fontSize: "clamp(40px, 5vw, 64px)", fontWeight: 900, lineHeight: 1.1, marginBottom: 32 }}>
+                        <h2 style={{ fontSize: "clamp(32px, 5vw, 64px)", fontWeight: 900, lineHeight: 1.1, marginBottom: 32 }}>
                             Del celular <span className="gradient-text">al anuncio<br />de lujo</span> en segundos
                         </h2>
-                        <p style={{ fontSize: 18, color: "#9CA3AF", lineHeight: 1.6, marginBottom: 40 }}>
+                        <p style={{ fontSize: 18, color: "#9CA3AF", lineHeight: 1.6, marginBottom: 40, margin: "0 auto 40px", maxWidth: 600 }}>
                             Sube la foto de tu producto, describe el estilo que quieres y nuestra IA genera **múltiples variaciones profesionales** listas para publicar en Meta Ads. Sin diseñador, sin Photoshop.
                         </p>
 
-                        <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 40 }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 40, alignItems: "center" }}>
                             {[
                                 { icon: "📸", text: "Foto de celular → Creativo de agencia" },
                                 { icon: "🎨", text: "Fondos, estilos y ángulos automáticos" },
@@ -520,12 +524,12 @@ export default function Home() {
                             border: "1px solid rgba(139,92,246,0.1)",
                             borderRadius: 32,
                             padding: 40,
-                            textAlign: "left",
+                            textAlign: "center",
                             position: "relative",
                             overflow: "hidden"
                         }}>
                             <div style={{ position: "absolute", top: 10, right: 20, fontSize: 80, fontWeight: 900, color: "rgba(255,255,255,0.02)", lineHeight: 1 }}>{step.num}</div>
-                            <div style={{ background: "rgba(139,92,246,0.15)", color: "#8B5CF6", width: 44, height: 44, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, marginBottom: 24 }}>{step.icon}</div>
+                            <div style={{ background: "rgba(139,92,246,0.15)", color: "#8B5CF6", width: 44, height: 44, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, marginBottom: 24, margin: "0 auto 24px" }}>{step.icon}</div>
                             <h4 style={{ fontSize: 22, fontWeight: 800, marginBottom: 16, color: "#fff" }}>{step.title}</h4>
                             <p style={{ fontSize: 16, color: "#9CA3AF", lineHeight: 1.6 }}>{step.desc}</p>
                         </div>
@@ -567,9 +571,9 @@ export default function Home() {
                 </div>
 
                 {/* Testimonials Section */}
-                <div style={{ marginTop: 140, textAlign: "center" }}>
+                <div style={{ marginTop: 80, textAlign: "center" }}>
                     <h2 style={{ fontSize: "clamp(32px, 6vw, 56px)", fontWeight: 900, marginBottom: 16 }}>Resultados reales de <span className="gradient-text">personas reales</span></h2>
-                    <p style={{ fontSize: 18, color: "#9CA3AF", marginBottom: 64, opacity: 0.7 }}>Mira cómo otros ya están escalando con ClickAds.</p>
+                    <p style={{ fontSize: 18, color: "#9CA3AF", marginBottom: 32, opacity: 0.7 }}>Mira cómo otros ya están escalando con ClickAds.</p>
 
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 32, maxWidth: 1200, margin: "0 auto" }}>
                         {[
@@ -641,9 +645,9 @@ export default function Home() {
                                 border: "1px solid rgba(255,255,255,0.05)",
                                 borderRadius: 32,
                                 padding: 40,
-                                textAlign: "left"
+                                textAlign: "center"
                             }}>
-                                <div style={{ background: "rgba(139,92,246,0.1)", color: "#8B5CF6", width: 44, height: 44, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, marginBottom: 24 }}>{item.icon}</div>
+                                <div style={{ background: "rgba(139,92,246,0.1)", color: "#8B5CF6", width: 44, height: 44, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, marginBottom: 24, margin: "0 auto 24px" }}>{item.icon}</div>
                                 <h4 style={{ fontSize: 22, fontWeight: 800, marginBottom: 16, color: "#fff" }}>{item.title}</h4>
                                 <p style={{ fontSize: 15, color: "#9CA3AF", lineHeight: 1.6 }}>{item.desc}</p>
                             </div>
@@ -652,11 +656,11 @@ export default function Home() {
                 </div>
 
                 {/* WhatsApp Testimonials Section */}
-                <div style={{ marginTop: 140, marginBottom: 60, textAlign: "center" }}>
+                <div style={{ marginTop: 80, marginBottom: 40, textAlign: "center" }}>
                     <div style={{ background: "rgba(16, 185, 129, 0.1)", border: "1px solid rgba(16, 185, 129, 0.2)", color: "#10B981", fontSize: 10, fontWeight: 800, padding: "6px 16px", borderRadius: 100, display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 24 }}>
                         🙌 Resultados Reales
                     </div>
-                    <h2 style={{ fontSize: "clamp(32px, 6vw, 56px)", fontWeight: 900, marginBottom: 64 }}>Lo que dicen los grupos de WhatsApp</h2>
+                    <h2 style={{ fontSize: "clamp(32px, 6vw, 56px)", fontWeight: 900, marginBottom: 40 }}>Lo que dicen los grupos de WhatsApp</h2>
 
                     <div style={{ maxWidth: "100%", overflow: "hidden", position: "relative" }}>
                         <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 150, background: "linear-gradient(to right, #030303, transparent)", zIndex: 2, pointerEvents: "none" }}></div>
@@ -721,9 +725,9 @@ export default function Home() {
                                 border: "1px solid rgba(255,255,255,0.05)",
                                 borderRadius: 32,
                                 padding: "40px 32px",
-                                textAlign: "left"
+                                textAlign: "center"
                             }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, marginBottom: 20 }}>
                                     <div style={{ background: "rgba(139,92,246,0.1)", color: "#8B5CF6", width: 44, height: 44, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
                                         {item.icon}
                                     </div>
@@ -743,11 +747,11 @@ export default function Home() {
             <section style={{ padding: "100px 24px" }}>
 
                 {/* Gallery Section */}
-                <div style={{ marginTop: 140, textAlign: "center" }}>
+                <div style={{ marginTop: 80, textAlign: "center" }}>
                     <h2 style={{ fontSize: "clamp(32px, 6vw, 56px)", fontWeight: 900, marginBottom: 16 }}>
                         Estos son algunos de los 100 creativos que puedes lograr en 10 minutos
                     </h2>
-                    <p style={{ fontSize: 18, color: "#9CA3AF", marginBottom: 64, opacity: 0.7 }}>
+                    <p style={{ fontSize: 18, color: "#9CA3AF", marginBottom: 40, opacity: 0.7 }}>
                         Imágenes de alto impacto creadas en tiempo récord, listas para Meta Ads
                     </p>
 
@@ -829,9 +833,9 @@ export default function Home() {
                                 border: "1px solid rgba(139,92,246,0.1)",
                                 borderRadius: 32,
                                 padding: "40px 32px",
-                                textAlign: "left"
+                                textAlign: "center"
                             }}>
-                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
+                                <div style={{ display: "flex", justifyContent: "center", gap: 24, marginBottom: 20 }}>
                                     <div style={{ background: "rgba(139,92,246,0.1)", color: "#8B5CF6", width: 44, height: 44, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
                                         {item.icon}
                                     </div>
@@ -886,12 +890,12 @@ export default function Home() {
                             />
                             <p style={{ marginTop: 20, color: "#9CA3AF", fontSize: 14, fontWeight: 600 }}>← Desliza para ver la transformación →</p>
                         </div>
-                        <div style={{ textAlign: "left" }}>
+                        <div style={{ textAlign: "center" }}>
                             <h3 style={{ fontSize: 32, fontWeight: 900, marginBottom: 24 }}>Pon tu producto en manos de modelos profesionales</h3>
-                            <p style={{ fontSize: 18, color: "#D1D5DB", lineHeight: 1.6, marginBottom: 32 }}>
+                            <p style={{ fontSize: 18, color: "#D1D5DB", lineHeight: 1.6, marginBottom: 32, margin: "0 auto 32px", maxWidth: 500 }}>
                                 Agrega autoridad y confianza a tu marca sin gastar miles de dólares en estudios, fotógrafos o modelos reales. Nuestra IA integra tu producto de forma natural en cualquier escenario.
                             </p>
-                            <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 24, padding: 32 }}>
+                            <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 24, padding: 32, display: "flex", flexDirection: "column", alignItems: "center" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
                                     <div style={{ background: "#8B5CF6", color: "#fff", width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>✓</div>
                                     <span style={{ fontWeight: 700 }}>Elige género y estilo del modelo</span>
@@ -904,11 +908,11 @@ export default function Home() {
                         </div>
                     </div>
 
-                    <div style={{ marginTop: 80, padding: "60px", background: "rgba(255,255,255,0.02)", borderRadius: 40, border: "1px solid rgba(255,255,255,0.05)" }} className="mobile-full-padding">
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }} className="mobile-grid-1">
-                            <div style={{ textAlign: "left" }}>
+                    <div style={{ marginTop: 40, padding: "60px", background: "rgba(255,255,255,0.02)", borderRadius: 40, border: "1px solid rgba(255,255,255,0.05)" }} className="mobile-full-padding">
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "center" }} className="mobile-grid-1">
+                            <div style={{ textAlign: "center" }}>
                                 <h3 style={{ fontSize: 32, fontWeight: 900, marginBottom: 24 }}>También Limpieza de Fondo 3D</h3>
-                                <p style={{ fontSize: 18, color: "#D1D5DB", lineHeight: 1.6, marginBottom: 32 }}>
+                                <p style={{ fontSize: 18, color: "#D1D5DB", lineHeight: 1.6, marginBottom: 32, margin: "0 auto 32px", maxWidth: 500 }}>
                                     Si prefieres un catálogo limpio, genera fondos blancos infinitos con sombras 3D perfectas para tu tienda online.
                                 </p>
                                 <a href="#precio" className="btn-primary" style={{ padding: "16px 32px" }}>OFERTA DISPONIBLE AQUÍ</a>
