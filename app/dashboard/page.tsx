@@ -33,6 +33,7 @@ interface Comment {
     authorAvatar: string;
     content: string;
     timestamp: number;
+    isPinned?: boolean;
 }
 
 interface Post {
@@ -75,31 +76,7 @@ const GOOGLE_FONTS = [
     "Jost", "Manrope", "Plus Jakarta Sans", "Space Grotesk", "DM Sans"
 ];
 
-const INITIAL_POSTS: Post[] = [
-    {
-        id: "1",
-        author: "Alex Rivers",
-        authorAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&q=80",
-        category: "logros",
-        content: "¡Acabo de lanzar mi primera campaña con ClickAds y el ROAS está en 4.5! Gracias por los consejos del módulo 3.",
-        timestamp: Date.now() - 3600000,
-        likes: 12,
-        comments: [
-            { id: "c1", author: "Sofía Chen", authorAvatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop", content: "¡Excelente resultado Alex! A por el 5.0 🔥", timestamp: Date.now() - 3000000 }
-        ],
-        image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=60"
-    },
-    {
-        id: "2",
-        author: "María García",
-        authorAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&q=80",
-        category: "presentacion",
-        content: "Hola a todos, soy de España y estoy empezando mi tienda de nicho para mascotas. ¡Encantada de estar aquí!",
-        timestamp: Date.now() - 7200000,
-        likes: 24,
-        comments: []
-    }
-];
+const INITIAL_POSTS: Post[] = [];
 
 export default function Dashboard() {
     const router = useRouter();
@@ -212,6 +189,11 @@ export default function Dashboard() {
         const savedPhoto = localStorage.getItem(getUKey("clickads_user_photo")) || (user as any)?.photo;
         if (savedPhoto) setUserPhoto(savedPhoto);
         else setUserPhoto(null);
+
+        const savedPosts = localStorage.getItem("clickads_community_posts");
+        if (savedPosts) {
+            try { setPosts(JSON.parse(savedPosts)); } catch (e) { console.error(e); }
+        }
     }, [user]);
 
     // Sync with Supabase on mount/user change
@@ -281,8 +263,10 @@ export default function Dashboard() {
 
     const deletePost = (id: string) => {
         if (!isAdmin) return;
-        setPosts(prev => prev.filter(p => p.id !== id));
-        setToast({ msg: "Comentario eliminado", type: 'success' });
+        const newPosts = posts.filter(p => p.id !== id);
+        setPosts(newPosts);
+        localStorage.setItem("clickads_community_posts", JSON.stringify(newPosts));
+        setToast({ msg: "Publicación eliminada", type: 'success' });
     };
 
     const deleteModule = (id: string, e?: React.MouseEvent) => {
@@ -495,16 +479,20 @@ export default function Dashboard() {
         if (!newPostContent.trim()) return;
         const newPost: Post = {
             id: Math.random().toString(36).substr(2, 9),
-            author: "Admin ClickAds",
+            author: user?.name || "Admin ClickAds",
             authorAvatar: getAvatarUrl(),
             category: postingTo,
             content: newPostContent,
             timestamp: Date.now(),
             likes: 0,
-            comments: []
+            comments: [],
+            image: newPostImage || undefined
         };
-        setPosts([newPost, ...posts]);
+        const updatedPosts = [newPost, ...posts];
+        setPosts(updatedPosts);
+        localStorage.setItem("clickads_community_posts", JSON.stringify(updatedPosts));
         setNewPostContent("");
+        setNewPostImage(null);
         setToast({ msg: "Publicación compartida", type: 'success' });
     };
 
@@ -536,13 +524,15 @@ export default function Dashboard() {
     const activeProject = projects.find(p => p.id === activeProjectId) || null;
 
     const toggleLike = (postId: string) => {
-        setPosts(prev => prev.map(p => {
+        const updatedPosts = posts.map(p => {
             if (p.id === postId) {
                 const liked = !p.likedByMe;
                 return { ...p, likedByMe: liked, likes: liked ? p.likes + 1 : p.likes - 1 };
             }
             return p;
-        }));
+        });
+        setPosts(updatedPosts);
+        localStorage.setItem("clickads_community_posts", JSON.stringify(updatedPosts));
     };
 
     const [commentingTo, setCommentingTo] = useState<string | null>(null);
@@ -557,10 +547,28 @@ export default function Dashboard() {
             content: tempComment,
             timestamp: Date.now()
         };
-        setPosts(prev => prev.map(p => p.id === postId ? { ...p, comments: [...p.comments, newComment] } : p));
+        const updatedPosts = posts.map(p => p.id === postId ? { ...p, comments: [...p.comments, newComment] } : p);
+        setPosts(updatedPosts);
+        localStorage.setItem("clickads_community_posts", JSON.stringify(updatedPosts));
         setTempComment("");
         setCommentingTo(null);
         setToast({ msg: "Comentario añadido", type: 'success' });
+    };
+
+    const togglePinComment = (postId: string, commentId: string) => {
+        if (!isAdmin) return;
+        const updatedPosts = posts.map(p => {
+            if (p.id === postId) {
+                return {
+                    ...p,
+                    comments: p.comments.map(c => c.id === commentId ? { ...c, isPinned: !c.isPinned } : c)
+                };
+            }
+            return p;
+        });
+        setPosts(updatedPosts);
+        localStorage.setItem("clickads_community_posts", JSON.stringify(updatedPosts));
+        setToast({ msg: "Estado de anclaje actualizado", type: 'success' });
     };
 
     return (
@@ -721,7 +729,10 @@ export default function Dashboard() {
                         ) : (
                             <div>
                                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 32 }}>
-                                    <button onClick={() => setActiveProjectId(null)} style={{ color: "#9CA3AF", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontWeight: 700 }}><ArrowLeft size={16} /> Volver</button>
+                                    <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
+                                        <button onClick={() => setActiveProjectId(null)} style={{ color: "#9CA3AF", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, fontWeight: 700 }}><ArrowLeft size={16} /> Volver</button>
+                                        <button onClick={() => updateActiveProject({ results: [], productPreview: "" })} style={{ background: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.2)", color: "#EF4444", padding: "6px 16px", borderRadius: 100, fontSize: 11, fontWeight: 800, cursor: "pointer" }}>Empezar de nuevo</button>
+                                    </div>
                                     <div style={{ textAlign: "right" }}>
                                         <div style={{ fontSize: 10, fontWeight: 700, opacity: 0.5 }}>PROYECTO ACTIVO</div>
                                         <div style={{ fontWeight: 900, fontSize: 24, fontFamily: activeProject?.font, color: activeProject?.primaryColor }}>{activeProject?.name}</div>
@@ -931,6 +942,16 @@ export default function Dashboard() {
                                         <div style={{ position: "absolute", top: 20, right: 20, display: "flex", gap: 12 }}>
                                             <button
                                                 onClick={() => {
+                                                    setStudioResult(null);
+                                                    setStudioImage(null);
+                                                }}
+                                                className="btn-primary"
+                                                style={{ padding: "10px 20px", fontSize: 12, background: "rgba(239, 68, 68, 0.8)" }}
+                                            >
+                                                Empezar de nuevo
+                                            </button>
+                                            <button
+                                                onClick={() => {
                                                     const link = document.createElement("a");
                                                     link.href = studioResult;
                                                     link.download = `photo_studio_${Date.now()}.png`;
@@ -1100,13 +1121,26 @@ export default function Dashboard() {
                                                 </div>
                                             </div>
                                             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                                                {post.comments.map(c => (
-                                                    <div key={c.id} style={{ display: "flex", gap: 12 }}>
+                                                {[...post.comments].sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0)).map(c => (
+                                                    <div key={c.id} style={{ display: "flex", gap: 12, position: "relative" }}>
                                                         <img src={c.authorAvatar} style={{ width: 28, height: 28, borderRadius: 6 }} />
-                                                        <div style={{ flex: 1, background: "rgba(255,255,255,0.02)", padding: "10px 14px", borderRadius: 12 }}>
+                                                        <div style={{ flex: 1, background: c.isPinned ? "rgba(139, 92, 246, 0.1)" : "rgba(255,255,255,0.02)", padding: "10px 14px", borderRadius: 12, border: c.isPinned ? "1px solid rgba(139, 92, 246, 0.3)" : "1px solid transparent" }}>
                                                             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                                                                <div style={{ fontSize: 12, fontWeight: 800 }}>{c.author}</div>
-                                                                <div style={{ fontSize: 10, color: "#4B5563" }}>{new Date(c.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                                                    <div style={{ fontSize: 12, fontWeight: 800 }}>{c.author}</div>
+                                                                    {c.isPinned && <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#8B5CF6", fontSize: 10, fontWeight: 900 }}><Bookmark size={10} fill="#8B5CF6" /> ANCLADO</div>}
+                                                                </div>
+                                                                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                                                                    <div style={{ fontSize: 10, color: "#4B5563" }}>{new Date(c.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                                                    {isAdmin && (
+                                                                        <button
+                                                                            onClick={() => togglePinComment(post.id, c.id)}
+                                                                            style={{ background: "none", border: "none", color: c.isPinned ? "#8B5CF6" : "#4B5563", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                                                                        >
+                                                                            <Minus size={14} style={{ transform: "rotate(90deg)" }} />
+                                                                        </button>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                             <div style={{ fontSize: 13, color: "#9CA3AF", lineHeight: 1.4 }}>{c.content}</div>
                                                         </div>
