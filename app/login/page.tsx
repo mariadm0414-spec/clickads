@@ -36,11 +36,17 @@ export default function AuthPage() {
                 .from('authorized_users')
                 .select('*')
                 .eq('email', email.toLowerCase())
-                .eq('status', 'active')
                 .single();
 
-            if (authError || !authData) {
-                setError("ACCESO DENEGADO: Este correo no tiene una suscripción activa en Hotmart.");
+            const isGracePeriodValid = authData?.grace_period_until && new Date(authData.grace_period_until) > new Date();
+            const isActive = authData?.status === 'active';
+
+            if (authError || (!isActive && !isGracePeriodValid)) {
+                setError(
+                    !authData
+                        ? "ACCESO DENEGADO: Este correo no está registrado."
+                        : "SUSCRIPCIÓN VENCIDA: Tu periodo de gracia de 15 días ha terminado. Por favor regulariza tu pago en Hotmart."
+                );
                 setIsLoading(false);
                 return;
             }
