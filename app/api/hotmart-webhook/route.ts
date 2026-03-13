@@ -12,19 +12,23 @@ export async function POST(req: Request) {
         const body = await req.json();
         const event = body.event;
 
-        // Try to find email in all possible Hotmart fields (Purchase or Subscription)
-        const email =
+        // Búsqueda exhaustiva del email en el payload de Hotmart (Compras y Suscripciones)
+        const rawEmail =
             body.data?.buyer?.email ||
             body.data?.subscriber?.email ||
             body.email ||
-            body.data?.email;
+            body.data?.email ||
+            body.data?.subscription?.subscriber?.email;
 
-        console.log(`Processing Hotmart Event: ${event} for ${email || 'unknown'}`);
+        // Normalización y limpieza del email
+        const email = (typeof rawEmail === 'string') ? rawEmail.trim().toLowerCase() : null;
 
-        // If it's an event but has no email, return 200 to keep Hotmart happy (avoid 400 errors)
+        console.log(`[Hotmart Webhook] Evento: ${event} | Email: ${email || 'No encontrado'}`);
+
+        // Responder 200 si no hay email para que Hotmart no marque error
         if (!email) {
-            console.warn(`Event ${event} received without identifiable email.`);
-            return NextResponse.json({ success: true, message: "No email found for processing" });
+            console.warn(`[Hotmart Webhook] Evento ${event} sin email. Body:`, JSON.stringify(body).substring(0, 500));
+            return NextResponse.json({ success: true, message: "No email found" });
         }
 
         if (event === 'PUR_APPROVED') {
@@ -70,9 +74,9 @@ export async function POST(req: Request) {
             event === 'PUR_CANCELED' ||
             event === 'PUR_REFUNDED' ||
             event === 'PUR_EXPIRED' ||
-            event === 'SUBSCRIPTION_CANCELLATION'
+            event === 'SUBSCRIPTION_CANCELLATION' ||
+            event === 'PUR_REVOKED'
         ) {
-            // Immediate removal of access
             const { error } = await supabase
                 .from('authorized_users')
                 .update({
@@ -80,9 +84,12 @@ export async function POST(req: Request) {
                     grace_period_until: null,
                     updated_at: new Date()
                 })
-                .eq('email', email.toLowerCase());
+                .eq('email', email);
 
-            if (error) throw error;
+            if (error) {
+                console.error(`[Hotmart Webhook] Error en Desactivación (${event}) para ${email}:`, error);
+                throw error;
+            }
         }
 
         return NextResponse.json({ success: true });
