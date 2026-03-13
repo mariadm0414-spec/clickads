@@ -10,17 +10,22 @@ const supabase = createClient(
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-
-        // Hotmart sends the status and user data in the body
-        // Event types: PUR_APPROVED, PUR_CANCELED, PUR_REFUNDED
         const event = body.event;
-        const email = body.data?.buyer?.email || body.email; // Support different Hotmart versions
 
+        // Try to find email in all possible Hotmart fields (Purchase or Subscription)
+        const email =
+            body.data?.buyer?.email ||
+            body.data?.subscriber?.email ||
+            body.email ||
+            body.data?.email;
+
+        console.log(`Processing Hotmart Event: ${event} for ${email || 'unknown'}`);
+
+        // If it's an event but has no email, return 200 to keep Hotmart happy (avoid 400 errors)
         if (!email) {
-            return NextResponse.json({ error: "No email found in payload" }, { status: 400 });
+            console.warn(`Event ${event} received without identifiable email.`);
+            return NextResponse.json({ success: true, message: "No email found for processing" });
         }
-
-        console.log(`Processing Hotmart Event: ${event} for ${email}`);
 
         if (event === 'PUR_APPROVED') {
             // Upsert user into authorized_users with active status and clear grace period
@@ -61,7 +66,12 @@ export async function POST(req: Request) {
                 if (error) throw error;
             }
         }
-        else if (event === 'PUR_CANCELED' || event === 'PUR_REFUNDED' || event === 'PUR_EXPIRED') {
+        else if (
+            event === 'PUR_CANCELED' ||
+            event === 'PUR_REFUNDED' ||
+            event === 'PUR_EXPIRED' ||
+            event === 'SUBSCRIPTION_CANCELLATION'
+        ) {
             // Immediate removal of access
             const { error } = await supabase
                 .from('authorized_users')
