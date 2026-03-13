@@ -1,16 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sparkles, Mail, Lock, ArrowRight, ArrowLeft, Loader2, CheckCircle2, AlertCircle, ShieldCheck, KeyRound } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/app/lib/supabase";
 
 // Lista blanca simulada (Supabase Mock)
-const ALLOWED_EMAILS = ["admin@clickads.com", "user@test.com", "cliente@vip.com"];
+const ALLOWED_EMAILS = ["admin@clickads.com", "user@test.com", "cliente@vip.com", "prueba@clickads.com"];
 
 export default function AuthPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [mode, setMode] = useState<'login' | 'register' | 'forgot' | 'verify'>('login');
+
+    // Detectar modo desde la URL (ej: /login?mode=register)
+    useEffect(() => {
+        const urlMode = searchParams.get('mode');
+        if (urlMode === 'register' || urlMode === 'login' || urlMode === 'forgot') {
+            setMode(urlMode as any);
+        }
+    }, [searchParams]);
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -25,9 +34,11 @@ export default function AuthPage() {
 
         // Real validation against authorized_users (Supabase)
         try {
-            // BYPASS TEMPORAL PARA ADMIN O DESARROLLO
-            if (email.toLowerCase() === 'admin@clickads.com') {
-                localStorage.setItem("clickads_user", JSON.stringify({ email, name: 'Admin ClickAds' }));
+            // BYPASS PARA ADMIN Y LISTA BLANCA DE PRUEBAS
+            const isAllowedManual = ALLOWED_EMAILS.includes(email.toLowerCase()) || email.toLowerCase() === 'admin@clickads.com';
+
+            if (isAllowedManual) {
+                localStorage.setItem("clickads_user", JSON.stringify({ email, name: name || 'Usuario de Prueba' }));
                 router.push("/dashboard");
                 return;
             }
