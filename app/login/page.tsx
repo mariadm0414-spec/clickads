@@ -35,7 +35,7 @@ function AuthForm() {
         setError("");
 
         try {
-            // BYPASS PARA ADMIN Y LISTA BLANCA DE PRUEBAS
+            // 1. BYPASS PARA ADMIN Y LISTA BLANCA DE PRUEBAS
             const isAllowedManual = ALLOWED_EMAILS.includes(email.toLowerCase()) || email.toLowerCase() === 'admin@clickads.com';
 
             if (isAllowedManual) {
@@ -44,6 +44,20 @@ function AuthForm() {
                 return;
             }
 
+            // 2. CHECK EN TABLA acceso_total (ACCESO INDEFINIDO)
+            const { data: totalAccessData } = await supabase
+                .from('acceso_total')
+                .select('email')
+                .eq('email', email.toLowerCase())
+                .maybeSingle();
+
+            if (totalAccessData) {
+                localStorage.setItem("clickads_user", JSON.stringify({ email, name: name || 'Acceso Total' }));
+                router.push("/dashboard");
+                return;
+            }
+
+            // 3. CHECK EN TABLA authorized_users (CLIENTES HOTMART)
             const { data: authData, error: authError } = await supabase
                 .from('authorized_users')
                 .select('*')
