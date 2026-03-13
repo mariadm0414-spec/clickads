@@ -25,7 +25,7 @@ export default function SignupPage() {
             const { data: authData, error: authError } = await supabase
                 .from('authorized_users')
                 .select('*')
-                .eq('email', email.toLowerCase())
+                .ilike('email', email.toLowerCase())
                 .maybeSingle();
 
             if (!authData) {
@@ -43,7 +43,7 @@ export default function SignupPage() {
                     full_name: name,
                     password: password // Asumimos que la columna existe o se usará para el flujo
                 })
-                .eq('email', email.toLowerCase());
+                .ilike('email', email.toLowerCase());
 
             if (updateError) {
                 console.error(updateError);
