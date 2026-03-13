@@ -5,6 +5,7 @@ import { Sparkles, UploadCloud, Download, Loader2, Key, Layers, ArrowLeft, Users
 import JSZip from "jszip";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/app/lib/supabase";
 
 interface Project {
     id: string;
@@ -199,20 +200,54 @@ export default function Dashboard() {
             setLibrary([]);
         }
 
-        const savedPhoto = localStorage.getItem(getUKey("clickads_user_photo"));
+        const savedPhoto = localStorage.getItem(getUKey("clickads_user_photo")) || (user as any)?.photo;
         if (savedPhoto) setUserPhoto(savedPhoto);
         else setUserPhoto(null);
     }, [user]);
+
+    // Sync with Supabase on mount/user change
+    useEffect(() => {
+        if (!user?.email) return;
+
+        const syncProfile = async () => {
+            const { data } = await supabase
+                .from('authorized_users')
+                .select('full_name, avatar_url')
+                .eq('email', user.email)
+                .maybeSingle();
+
+            if (data) {
+                if (data.full_name && data.full_name !== user.name) {
+                    setUser(prev => prev ? { ...prev, name: data.full_name } : null);
+                }
+                if (data.avatar_url && data.avatar_url !== userPhoto) {
+                    setUserPhoto(data.avatar_url);
+                    localStorage.setItem(getUKey("clickads_user_photo"), data.avatar_url);
+                }
+            }
+        };
+
+        syncProfile();
+    }, [user?.email]);
 
 
     const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
         const reader = new FileReader();
-        reader.onload = (event) => {
+        reader.onload = async (event) => {
             const res = event.target?.result as string;
             setUserPhoto(res);
             localStorage.setItem(getUKey("clickads_user_photo"), res);
+
+            // Persistir en Supabase
+            if (user?.email) {
+                await supabase
+                    .from('authorized_users')
+                    .update({ avatar_url: res })
+                    .eq('email', user.email);
+            }
+
             setToast({ msg: "Foto de perfil actualizada", type: 'success' });
         };
         reader.readAsDataURL(file);
