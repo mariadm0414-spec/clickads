@@ -8,66 +8,73 @@ const supabase = createClient(
 );
 
 export async function POST(req: Request) {
+    let body;
     try {
-        const body = await req.json();
-        const event = body.event;
+        body = await req.json();
+    } catch (e) {
+        console.error("[Hotmart Webhook] Malformed JSON received");
+        return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    }
 
-        // Búsqueda exhaustiva del email en el payload de Hotmart (Compras y Suscripciones)
+    try {
+        const event = body.event;
+        const now = new Date().toISOString();
+
+        // Extraer Email con alta compatibilidad (Suscripciones y Compras)
         const rawEmail =
             body.data?.buyer?.email ||
             body.data?.subscriber?.email ||
+            body.data?.subscription?.subscriber?.email ||
             body.email ||
-            body.data?.email ||
-            body.data?.subscription?.subscriber?.email;
+            body.data?.email;
 
-        // Normalización y limpieza del email
         const email = (typeof rawEmail === 'string') ? rawEmail.trim().toLowerCase() : null;
 
-        console.log(`[Hotmart Webhook] Evento: ${event} | Email: ${email || 'No encontrado'}`);
+        console.log(`[Hotmart Webhook] EVENTO: ${event} | EMAIL: ${email || 'Desconocido'}`);
 
-        // Responder 200 si no hay email para que Hotmart no marque error
+        // Si no hay email, no podemos procesar, pero devolvemos 200 para no dar error 500
         if (!email) {
-            console.warn(`[Hotmart Webhook] Evento ${event} sin email. Body:`, JSON.stringify(body).substring(0, 500));
-            return NextResponse.json({ success: true, message: "No email found" });
+            console.warn(`[Hotmart Webhook] Email no encontrado. Evento: ${event}`);
+            return NextResponse.json({ success: true, message: "No email to process" });
         }
 
         if (event === 'PUR_APPROVED') {
-            // Upsert user into authorized_users with active status and clear grace period
             const { error } = await supabase
                 .from('authorized_users')
                 .upsert({
-                    email: email.toLowerCase(),
+                    email: email,
                     status: 'active',
                     grace_period_until: null,
-                    updated_at: new Date()
+                    updated_at: now
                 }, { onConflict: 'email' });
 
-            if (error) throw error;
+            if (error) throw new Error(`Supabase Upsert Error (Approved): ${error.message}`);
         }
-        else if (event === 'PUR_DELAYED' || event === 'PUR_PROTESTED') {
-            // Payment failed or delayed. Give 15 days grace period if not already set.
-            // We only set it if the user is currently active or if it's not set yet.
+        else if (event === 'PUR_DELAYED' || event === 'PUR_PROTESTED' || event === 'PUR_DELAYED_PAYMENT') {
             const fifteenDaysLater = new Date();
             fifteenDaysLater.setDate(fifteenDaysLater.getDate() + 15);
+            const graceDate = fifteenDaysLater.toISOString();
 
-            const { data: user } = await supabase
+            // Usamos maybeSingle() para evitar el error 500 si el usuario no existe
+            const { data: user, error: fetchError } = await supabase
                 .from('authorized_users')
                 .select('grace_period_until')
-                .eq('email', email.toLowerCase())
-                .single();
+                .eq('email', email)
+                .maybeSingle();
 
-            // Only set grace period if they don't have one yet
+            if (fetchError) throw new Error(`Supabase Fetch Error: ${fetchError.message}`);
+
             if (!user?.grace_period_until) {
-                const { error } = await supabase
+                const { error: upsertError } = await supabase
                     .from('authorized_users')
                     .upsert({
-                        email: email.toLowerCase(),
+                        email: email,
                         status: 'delayed',
-                        grace_period_until: fifteenDaysLater,
-                        updated_at: new Date()
+                        grace_period_until: graceDate,
+                        updated_at: now
                     }, { onConflict: 'email' });
 
-                if (error) throw error;
+                if (upsertError) throw new Error(`Supabase Upsert Error (Grace): ${upsertError.message}`);
             }
         }
         else if (
@@ -75,26 +82,33 @@ export async function POST(req: Request) {
             event === 'PUR_REFUNDED' ||
             event === 'PUR_EXPIRED' ||
             event === 'SUBSCRIPTION_CANCELLATION' ||
-            event === 'PUR_REVOKED'
+            event === 'PUR_REVOKED' ||
+            event === 'PUR_DEVOLUTION'
         ) {
-            const { error } = await supabase
+            const { error: updateError } = await supabase
                 .from('authorized_users')
                 .update({
                     status: 'inactive',
                     grace_period_until: null,
-                    updated_at: new Date()
+                    updated_at: now
                 })
                 .eq('email', email);
 
-            if (error) {
-                console.error(`[Hotmart Webhook] Error en Desactivación (${event}) para ${email}:`, error);
-                throw error;
-            }
+            if (updateError) throw new Error(`Supabase Update Error (Deactivate): ${updateError.message}`);
         }
 
-        return NextResponse.json({ success: true });
+        return NextResponse.json({ success: true, processed: event });
+
     } catch (error: any) {
-        console.error("Webhook Error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        // Log detallado pero retornamos 200 para que Hotmart no marque error 500
+        console.error("!!! [Hotmart Webhook CRASH] !!!", {
+            message: error.message,
+            event: body?.event
+        });
+
+        return NextResponse.json({
+            success: false,
+            error: error.message
+        }, { status: 200 });
     }
 }
