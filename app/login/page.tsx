@@ -88,6 +88,13 @@ function AuthForm() {
             }
 
             if (mode === 'login' || mode === 'register') {
+                // Verificar contraseña si no es bypass
+                if (authData?.password && authData.password !== password) {
+                    setError("CONTRASEÑA INCORRECTA. Por favor intenta de nuevo.");
+                    setIsLoading(false);
+                    return;
+                }
+
                 // Guardar perfil completo en localStorage
                 const userProfile = {
                     email,
@@ -179,7 +186,7 @@ function AuthForm() {
                         </div>
                     </div>
                     <h1 style={{ fontSize: 32, fontWeight: 900, marginBottom: 12 }}>
-                        {mode === 'login' ? 'Acceso Privado' : mode === 'register' ? 'Solicitar Acceso' : mode === 'forgot' ? 'Código de Acceso' : 'Verificar Código'}
+                        {mode === 'login' ? 'Iniciar Sesión' : mode === 'register' ? 'Solicitar Acceso' : mode === 'forgot' ? 'Código de Acceso' : 'Verificar Código'}
                     </h1>
                     <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 14 }}>
                         {mode === 'login' ? 'Solo personal autorizado de Supabase' : mode === 'verify' ? 'Ingresa el código enviado a tu correo' : 'Sistema restringido por lista blanca'}
@@ -263,7 +270,7 @@ function AuthForm() {
                 <div style={{ textAlign: "center", marginTop: 32 }}>
                     {mode === 'login' ? (
                         <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)" }}>
-                            ¿No estás en la lista? <span onClick={() => setMode('register')} style={{ color: "#8B5CF6", cursor: "pointer", fontWeight: 700 }}>Solicita entrada</span>
+                            ¿Eres nuevo comprador? <span onClick={() => router.push("/signup")} style={{ color: "#8B5CF6", cursor: "pointer", fontWeight: 700 }}>Crea tu cuenta aquí</span>
                         </p>
                     ) : (
                         <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)" }}>
@@ -293,4 +300,3 @@ export default function AuthPage() {
         </Suspense>
     );
 }
-
