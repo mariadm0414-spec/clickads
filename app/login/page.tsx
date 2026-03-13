@@ -47,99 +47,65 @@ function AuthForm() {
         try {
             const lowEmail = email.toLowerCase();
 
-            // 1. PRIORIDAD ABSOLUTA: CHECK EN TABLA acceso_total (CONTROL TOTAL)
+            // 1. OBTENER DATOS DEL USUARIO (De cualquier tabla)
+            const { data: authData } = await supabase
+                .from('authorized_users')
+                .select('*')
+                .ilike('email', lowEmail)
+                .maybeSingle();
+
             const { data: totalAccessData } = await supabase
                 .from('acceso_total')
                 .select('*')
                 .ilike('email', lowEmail)
                 .maybeSingle();
 
-            if (totalAccessData) {
-                // Si está en acceso_total, buscamos si tiene nombre en authorized_users para que se vea bien
-                const { data: extraInfo } = await supabase
-                    .from('authorized_users')
-                    .select('full_name, avatar_url')
-                    .ilike('email', lowEmail)
-                    .maybeSingle();
-
-                const userProfile = {
-                    email: lowEmail,
-                    name: extraInfo?.full_name || 'Acceso VIP',
-                    photo: extraInfo?.avatar_url || null
-                };
-
-                localStorage.setItem("clickads_user", JSON.stringify(userProfile));
-                router.push("/dashboard");
-                return;
-            }
-
-            // 2. BYPASS PARA LISTA BLANCA LOCAL (MANTENIMIENTO)
-            const isAllowedManual = ALLOWED_EMAILS.includes(lowEmail) || lowEmail === 'admin@clickads.com';
-
-            if (isAllowedManual) {
-                localStorage.setItem("clickads_user", JSON.stringify({ email: lowEmail, name: name || 'Admin / Test' }));
-                router.push("/dashboard");
-                return;
-            }
-
-            // 3. CHECK EN TABLA authorized_users (CLIENTES HOTMART - FLUJO NORMAL)
-            const { data: authData, error: authError } = await supabase
-                .from('authorized_users')
-                .select('*')
-                .ilike('email', email.toLowerCase())
-                .maybeSingle();
-
-            const isGracePeriodValid = authData?.grace_period_until && new Date(authData.grace_period_until) > new Date();
-            const isActive = authData?.status === 'active';
-
-            if (authError || (!isActive && !isGracePeriodValid)) {
-                setError(
-                    !authData
-                        ? "ACCESO DENEGADO: Este correo no está registrado."
-                        : "SUSCRIPCIÓN VENCIDA: Tu periodo de gracia de 15 días ha terminado. Por favor regulariza tu pago en Hotmart."
-                );
+            if (!authData && !totalAccessData) {
+                setError("Este correo no está registrado.");
                 setIsLoading(false);
                 return;
             }
 
-            if (mode === 'login' || mode === 'register') {
-                // Verificar contraseña si no es bypass
-                if (authData?.password && authData.password !== password) {
-                    setError("CONTRASEÑA INCORRECTA. Por favor intenta de nuevo.");
+            if (mode === 'login') {
+                // VALIDACIÓN DE CONTRASEÑA OBLIGATORIA
+                // Si el usuario existe en authorized_users y tiene clave, comparamos.
+                // Si está en acceso_total pero no en authorized_users, debe registrarse primero.
+                if (!authData || !authData.password) {
+                    setError("Aún no tienes una contraseña creada. Por favor ve a 'Crear Cuenta' para configurar tu acceso.");
                     setIsLoading(false);
                     return;
                 }
 
-                // Guardar perfil completo en localStorage
+                if (authData.password !== password) {
+                    setError("CONTRASEÑA INCORRECTA. Si no la recuerdas, usa el link de recuperar abajo.");
+                    setIsLoading(false);
+                    return;
+                }
+
+                // Guardar perfil y entrar
                 const userProfile = {
-                    email,
-                    name: name || authData?.full_name || 'Usuario VIP',
-                    photo: photo || authData?.avatar_url || null
+                    email: lowEmail,
+                    name: authData.full_name || 'Usuario VIP',
+                    photo: authData.avatar_url || null
                 };
 
                 localStorage.setItem("clickads_user", JSON.stringify(userProfile));
-
-                // Si estamos registrando, actualizar Supabase con el nombre y foto
-                if (mode === 'register' || !authData?.full_name) {
-                    await supabase
-                        .from('authorized_users')
-                        .update({
-                            full_name: name || userProfile.name,
-                            avatar_url: photo || userProfile.photo
-                        })
-                        .ilike('email', email.toLowerCase());
-                }
-
                 router.push("/dashboard");
+
             } else if (mode === 'forgot') {
-                setToastMsg("Código enviado a " + email);
-                setMode('verify');
-            } else if (mode === 'verify') {
-                if (code === "123456") {
-                    setToastMsg("Contraseña actualizada con éxito");
-                    setMode('login');
+                // Llamar a la API de Resend para enviar el correo
+                const res = await fetch("/api/auth/send-reset", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: lowEmail })
+                });
+
+                if (res.ok) {
+                    setToastMsg("📩 Correo de recuperación enviado a " + lowEmail);
+                    setTimeout(() => setMode('login'), 3000);
                 } else {
-                    setError("CÓDIGO INVÁLIDO. Revisa tu bandeja de entrada.");
+                    const data = await res.json();
+                    setError("Error al enviar el correo: " + (data.error || "Inténtalo más tarde."));
                 }
             }
         } catch (err: any) {
