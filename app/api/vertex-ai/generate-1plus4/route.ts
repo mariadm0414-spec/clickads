@@ -20,7 +20,7 @@ export async function POST(req: Request) {
         const base64Data = productBase64.includes(",") ? productBase64.split(",")[1] : productBase64;
         const mimeType = productBase64.includes("image/png") ? "image/png" : "image/jpeg";
 
-        const brandingContext = ` BRANDING: Use ${primaryColor || "luxury"} as the primary color and ${secondaryColor || "white"} as the secondary color theme for buttons, shapes, and accents. Use ${font || "modern sans-serif"} typography. IMPORTANT: DO NOT WRITE the color codes (hex values starting with #) as text in the image. Only apply the colors visually to the design.`;
+        const brandingContext = ` BRANDING: Use ${primaryColor || "luxury"} as the primary color and ${secondaryColor || "white"} as the secondary color theme for buttons, shapes, and accents. Apply the ${font || "modern sans-serif"} font style for any text elements. IMPORTANT: DO NOT WRITE the names of the colors or fonts, such as "${font}", "${primaryColor}", or hex codes, as actual visible text in the image. Only apply them visually to the design elements.`;
 
         const allAdTypes = [
             { id: "TESTIMONIAL", name: "TESTIMONIAL", style: "luxury studio setting with a clean background", goal: "Añadir un testimonio de cliente en ESPAÑOL dentro de un rectángulo con bordes redondeados. Incluir icono de 5 estrellas." },
