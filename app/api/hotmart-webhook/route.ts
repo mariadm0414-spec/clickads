@@ -1,3 +1,10 @@
+import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+// 1. Configuración directa de Supabase (Usa tus variables de entorno)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function POST(req: Request) {
     let body;
@@ -12,7 +19,7 @@ export async function POST(req: Request) {
         const event = body.event;
         const now = new Date().toISOString();
 
-        // Extraer Email con alta compatibilidad (Suscripciones y Compras)
+        // Extraer Email con alta compatibilidad
         const rawEmail =
             body.data?.buyer?.email ||
             body.data?.subscriber?.email ||
@@ -24,11 +31,12 @@ export async function POST(req: Request) {
 
         console.log(`[Hotmart Webhook] EVENTO: ${event} | EMAIL: ${email || 'Desconocido'}`);
 
-        // Si no hay email, no podemos procesar, pero devolvemos 200 para no dar error 500
         if (!email) {
             console.warn(`[Hotmart Webhook] Email no encontrado. Evento: ${event}`);
             return NextResponse.json({ success: true, message: "No email to process" });
         }
+
+        // --- LÓGICA DE BASE DE DATOS ---
 
         if (event === 'PUR_APPROVED') {
             const { error } = await supabase
@@ -42,12 +50,12 @@ export async function POST(req: Request) {
 
             if (error) throw new Error(`Supabase Upsert Error (Approved): ${error.message}`);
         }
+        
         else if (event === 'PUR_DELAYED' || event === 'PUR_PROTESTED' || event === 'PUR_DELAYED_PAYMENT') {
             const fifteenDaysLater = new Date();
             fifteenDaysLater.setDate(fifteenDaysLater.getDate() + 15);
             const graceDate = fifteenDaysLater.toISOString();
 
-            // Usamos maybeSingle() para evitar el error 500 si el usuario no existe
             const { data: user, error: fetchError } = await supabase
                 .from('authorized_users')
                 .select('grace_period_until')
@@ -69,6 +77,7 @@ export async function POST(req: Request) {
                 if (upsertError) throw new Error(`Supabase Upsert Error (Grace): ${upsertError.message}`);
             }
         }
+        
         else if (
             event === 'PUR_CANCELED' ||
             event === 'PUR_REFUNDED' ||
@@ -92,7 +101,6 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: true, processed: event });
 
     } catch (error: any) {
-        // Log detallado pero retornamos 200 para que Hotmart no marque error 500
         console.error("!!! [Hotmart Webhook CRASH] !!!", {
             message: error.message,
             event: body?.event
