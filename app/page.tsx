@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Sparkles, Zap, Shield, Clock, Brain, AlertCircle, ShoppingCart, MessageSquare, Plus, Database, Download } from "lucide-react";
 
 // ── Constants ─────────────────────────────────────────────────────────────
-const CHECKOUT_URL = "/dashboard";
+const CHECKOUT_URL = "https://pay.hotmart.com/R104883981X";
 const WHATSAPP_URL = "https://wa.link/pyi5n8";
 
 // ── Components ─────────────────────────────────────────────────────────────
@@ -142,7 +142,7 @@ export default function Home() {
                         <span style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.04em" }}>ClickAds</span>
                     </div>
                     <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-                        <Link href="/login" className="btn-primary" style={{ padding: "10px 24px", fontSize: 14 }}>ACCEDER A LA APP</Link>
+                        <Link href="#precio" className="btn-primary" style={{ padding: "10px 24px", fontSize: 14 }}>ACCEDER A LA APP</Link>
                     </div>
                 </div>
             </nav>
@@ -174,7 +174,7 @@ export default function Home() {
                 </div>
 
                 <div style={{ display: "flex", gap: 16, justifyContent: "center" }} className="mobile-stack">
-                    <Link href="/login" className="btn-primary btn-cta">ACCEDER A LA APP</Link>
+                    <Link href="#precio" className="btn-primary btn-cta">ACCEDER A LA APP</Link>
                 </div>
 
             </section>
@@ -306,7 +306,7 @@ export default function Home() {
                                 <p style={{ fontSize: 20, color: "#A78BFA", fontWeight: 700, marginTop: 4 }}>La rompes completamente.</p>
                             </div>
 
-                            <Link href="/login" className="btn-primary" style={{ background: "#fff", color: "#030303", padding: "18px 40px", borderRadius: 100, fontWeight: 900, fontSize: 18, border: "none" }}>
+                            <Link href="#precio" className="btn-primary" style={{ background: "#fff", color: "#030303", padding: "18px 40px", borderRadius: 100, fontWeight: 900, fontSize: 18, border: "none" }}>
                                 ACCEDER A LA APP
                             </Link>
                         </div>
@@ -392,7 +392,7 @@ export default function Home() {
                             ))}
                         </div>
 
-                        <Link href="/login" className="btn-primary" style={{ padding: "18px 40px", borderRadius: 16, fontSize: 18 }}>
+                        <Link href="#precio" className="btn-primary" style={{ padding: "18px 40px", borderRadius: 16, fontSize: 18 }}>
                             ACCEDER A LA APP
                         </Link>
                     </div>
@@ -876,7 +876,7 @@ export default function Home() {
                             ))}
                         </div>
 
-                        <Link href="/login" className="btn-primary btn-cta" style={{ width: "100%", justifyContent: "center", borderRadius: 16 }}>ACCEDER A LA APP</Link>
+                        <a href={CHECKOUT_URL} className="btn-primary btn-cta" style={{ width: "100%", justifyContent: "center", borderRadius: 16 }}>ACCEDER A LA APP</a>
 
                         <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 20, color: "#25D366", textDecoration: "none", fontSize: 15, fontWeight: 700, borderBottom: "1px solid rgba(37, 211, 102, 0.3)", paddingBottom: 2 }}>
                             ¿Dudas? Escribeme por WhatsApp
