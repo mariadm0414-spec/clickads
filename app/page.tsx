@@ -179,7 +179,8 @@ export default function Home() {
                     .mobile-text-center { text-align: center !important; }
                     .mobile-full { width: 100% !important; }
                     .mobile-full-padding { padding: 32px 20px !important; }
-                    section { padding: 40px 20px !important; }
+                    section { padding: 60px 20px !important; }
+                    .hero-section { padding-top: 100px !important; }
                     .btn-cta { width: 100%; justify-content: center; padding: 20px !important; font-size: 18px !important; }
                     h1 { font-size: 32px !important; line-height: 1.2 !important; }
                     h2 { font-size: 26px !important; line-height: 1.2 !important; }
@@ -226,7 +227,7 @@ export default function Home() {
             </nav>
 
             {/* Hero Section */}
-            <section style={{ padding: "120px 24px 40px", maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
+            <section className="hero-section" style={{ padding: "120px 24px 40px", maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
                 <div
                     className="hero-badge"
                     style={{ background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)", color: "#A78BFA", fontSize: 12, fontWeight: 800, padding: "8px 20px", borderRadius: 100, display: "inline-block", marginBottom: 24, maxWidth: "100%" }}
@@ -885,7 +886,7 @@ export default function Home() {
                             <BeforeAfterSlider
                                 before="/photo-studio/antes.jpg"
                                 after="/photo-studio/modelo.jpg"
-                                beforeLabel="FOTO CELULAR"
+                                beforeLabel="FOTO TOMADA CON CELULAR"
                                 afterLabel="RESULTADO CON MODELO IA"
                             />
                             <p style={{ marginTop: 20, color: "#9CA3AF", fontSize: 14, fontWeight: 600 }}>← Desliza para ver la transformación →</p>
@@ -895,7 +896,7 @@ export default function Home() {
                             <p style={{ fontSize: 18, color: "#D1D5DB", lineHeight: 1.6, marginBottom: 32, margin: "0 auto 32px", maxWidth: 500 }}>
                                 Agrega autoridad y confianza a tu marca sin gastar miles de dólares en estudios, fotógrafos o modelos reales. Nuestra IA integra tu producto de forma natural en cualquier escenario.
                             </p>
-                            <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 24, padding: 32, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                            <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 24, padding: 32, display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
                                     <div style={{ background: "#8B5CF6", color: "#fff", width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900 }}>✓</div>
                                     <span style={{ fontWeight: 700 }}>Elige género y estilo del modelo</span>
