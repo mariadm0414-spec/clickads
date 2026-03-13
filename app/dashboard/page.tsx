@@ -167,7 +167,10 @@ export default function Dashboard() {
         if (!user) return;
 
         const savedKey = localStorage.getItem(getUKey("clickads_api_key"));
-        if (savedKey) setApiKey(savedKey);
+        if (savedKey) {
+            setApiKey(savedKey);
+            setTempApiKey(savedKey);
+        }
 
         const adminStatus = localStorage.getItem(getUKey("clickads_admin_mode")) === 'true';
         setIsAdmin(adminStatus);
@@ -1405,6 +1408,85 @@ export default function Dashboard() {
                                             <div style={{ padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontWeight: 600 }}>{user?.email}</div>
                                         </div>
                                     </div>
+                                </div>
+
+                                <div className="glass-card" style={{ padding: 32 }}>
+                                    <h4 style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>Google AI API Key</h4>
+                                    <p style={{ color: "#9CA3AF", fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}>
+                                        Conecta tu propia llave de Google AI Studio (Gemini) para tener generaciones ilimitadas y gratuitas.
+                                    </p>
+                                    <div style={{ display: "flex", gap: 12 }}>
+                                        <input
+                                            type="password"
+                                            className="input-field"
+                                            placeholder="Introduce tu API Key..."
+                                            value={tempApiKey}
+                                            onChange={(e) => setTempApiKey(e.target.value)}
+                                            style={{ marginBottom: 0 }}
+                                        />
+                                        <button
+                                            onClick={() => {
+                                                setApiKey(tempApiKey);
+                                                localStorage.setItem(getUKey("clickads_api_key"), tempApiKey);
+                                                setToast({ msg: "API Key guardada correctamente", type: 'success' });
+                                            }}
+                                            className="btn-primary"
+                                            style={{ padding: "0 24px" }}
+                                        >
+                                            Guardar
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="glass-card" style={{ padding: 32 }}>
+                                    <h4 style={{ fontSize: 18, fontWeight: 800, marginBottom: 16 }}>Acceso Administrador</h4>
+                                    {isAdmin ? (
+                                        <div style={{ background: "rgba(16, 185, 129, 0.1)", border: "1px solid #10B981", padding: 20, borderRadius: 16, color: "#10B981", fontWeight: 800, display: "flex", gap: 12, alignItems: "center" }}>
+                                            <ShieldCheck size={24} /> MODO ADMIN ACTIVADO
+                                            <button
+                                                onClick={() => {
+                                                    setIsAdmin(false);
+                                                    localStorage.removeItem(getUKey("clickads_admin_mode"));
+                                                    setToast({ msg: "Modo Admin desactivado", type: 'success' });
+                                                }}
+                                                style={{ marginLeft: "auto", background: "none", border: "none", color: "#EF4444", fontSize: 11, fontWeight: 900, cursor: "pointer", textTransform: "uppercase" }}
+                                            >
+                                                Desactivar
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <p style={{ color: "#9CA3AF", fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}>
+                                                Si eres parte del equipo de ClickAds, introduce tu clave secreta para gestionar contenido.
+                                            </p>
+                                            <div style={{ display: "flex", gap: 12 }}>
+                                                <input
+                                                    type="password"
+                                                    className="input-field"
+                                                    placeholder="Clave secreta..."
+                                                    value={secretKey}
+                                                    onChange={(e) => setSecretKey(e.target.value)}
+                                                    style={{ marginBottom: 0 }}
+                                                />
+                                                <button
+                                                    onClick={() => {
+                                                        if (secretKey === "CLICKADS2025") {
+                                                            setIsAdmin(true);
+                                                            localStorage.setItem(getUKey("clickads_admin_mode"), "true");
+                                                            setToast({ msg: "Acceso Administrador concedido", type: 'success' });
+                                                            setSecretKey("");
+                                                        } else {
+                                                            setToast({ msg: "Clave incorrecta", type: 'error' });
+                                                        }
+                                                    }}
+                                                    className="btn-primary"
+                                                    style={{ padding: "0 24px" }}
+                                                >
+                                                    Activar
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </div>
