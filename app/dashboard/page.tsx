@@ -17,6 +17,7 @@ interface Project {
     primaryColor?: string;
     secondaryColor?: string;
     font?: string;
+    logoPreview?: string;
 }
 
 interface SavedAd {
@@ -89,15 +90,27 @@ export default function Dashboard() {
     const [apiKey, setApiKey] = useState("");
     const [userPhoto, setUserPhoto] = useState<string | null>(null);
 
-    // Auth Protection
+    // Auth Protection REMOVED per user request - Login is now fully bypassed
     useEffect(() => {
         const savedUser = localStorage.getItem("clickads_user");
         if (!savedUser) {
-            router.push("/login");
+            const mockUser = {
+                name: "Admin ClickAds",
+                email: "admin@clickads.tech"
+            };
+            localStorage.setItem("clickads_user", JSON.stringify(mockUser));
+            setUser(mockUser);
         } else {
             setUser(JSON.parse(savedUser));
         }
-    }, [router]);
+
+        // Force Admin Mode by default for "Acceso Total"
+        const adminStatus = localStorage.getItem(getUKey("clickads_admin_mode"));
+        if (adminStatus !== 'false') { // If never set or explicitly true
+            setIsAdmin(true);
+            localStorage.setItem(getUKey("clickads_admin_mode"), "true");
+        }
+    }, []);
 
     // Admin State (In a real app, this comes from auth/roles)
     const [isAdmin, setIsAdmin] = useState(false);
@@ -166,20 +179,31 @@ export default function Dashboard() {
     useEffect(() => {
         if (!user) return;
 
-        const savedKey = localStorage.getItem(getUKey("clickads_api_key"));
+        // Cargar API Key (Primero por usuario, luego Global como fallback)
+        const savedKey = localStorage.getItem(getUKey("clickads_api_key")) || localStorage.getItem("clickads_api_key_global");
         if (savedKey) {
             setApiKey(savedKey);
             setTempApiKey(savedKey);
         }
 
-        const adminStatus = localStorage.getItem(getUKey("clickads_admin_mode")) === 'true';
+        const adminStatus = localStorage.getItem(getUKey("clickads_admin_mode")) !== 'false';
         setIsAdmin(adminStatus);
 
         const savedProjects = localStorage.getItem(getUKey("clickads_projects"));
+        const legacyProjects = localStorage.getItem("clickads_projects");
+
         if (savedProjects) {
             try { setProjects(JSON.parse(savedProjects)); } catch (e) { console.error(e); }
+        } else if (legacyProjects && user?.email) {
+            // Migración: Mover proyectos sin email al perfil del usuario
+            try {
+                const parsed = JSON.parse(legacyProjects);
+                setProjects(parsed);
+                localStorage.setItem(getUKey("clickads_projects"), legacyProjects);
+                localStorage.removeItem("clickads_projects"); // Limpiar legacy
+            } catch (e) { console.error(e); }
         } else {
-            setProjects([]); // Clear if new user
+            setProjects([]);
         }
 
         const savedLib = localStorage.getItem(getUKey("clickads_library"));
@@ -198,6 +222,37 @@ export default function Dashboard() {
             try { setPosts(JSON.parse(savedPosts)); } catch (e) { console.error(e); }
         }
     }, [user]);
+
+    // Auto-save Projects persistence loop with Quota Handling
+    useEffect(() => {
+        if (user) {
+            const key = getUKey("clickads_projects");
+            const data = JSON.stringify(projects);
+            try {
+                localStorage.setItem(key, data);
+            } catch (e: any) {
+                if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+                    console.warn("Local storage full, attempting to prune oldest results...");
+                    // Si el disco está lleno, quitamos las imágenes (que es lo más pesado) de los proyectos más antiguos
+                    // Excepto del proyecto activo para no interrumpir el trabajo actual
+                    const pruned = [...projects].sort((a, b) => a.updatedAt - b.updatedAt).map(p => {
+                        if (p.id !== activeProjectId) {
+                            return { ...p, results: [] }; // Borramos solo las imágenes generadas para liberar espacio
+                        }
+                        return p;
+                    });
+
+                    try {
+                        localStorage.setItem(key, JSON.stringify(pruned));
+                        setProjects(pruned);
+                        setToast({ msg: "⚠️ Memoria llena: Se han limpiado imágenes antiguas para ahorrar espacio.", type: 'error' });
+                    } catch (finalErr) {
+                        setToast({ msg: "❌ Memoria CRÍTICA: Elimina proyectos manualmente para continuar.", type: 'error' });
+                    }
+                }
+            }
+        }
+    }, [projects, user, activeProjectId]);
 
     // Sync with Supabase on mount/user change
     useEffect(() => {
@@ -253,7 +308,7 @@ export default function Dashboard() {
     };
 
     const toggleAdmin = () => {
-        if (secretKey === "admin123") { // Llave secreta para activar modo admin
+        if (secretKey === "CLICKADS2025") { // Llave secreta para activar modo admin
             const newAdminStatus = !isAdmin;
             setIsAdmin(newAdminStatus);
             localStorage.setItem(getUKey("clickads_admin_mode"), newAdminStatus.toString());
@@ -399,7 +454,8 @@ export default function Dashboard() {
             updatedAt: Date.now(),
             primaryColor: selectedPrimary,
             secondaryColor: selectedSecondary,
-            font: selectedFont
+            font: selectedFont,
+            logoPreview: ""
         };
         const newProjects = [newProject, ...projects];
         setProjects(newProjects);
@@ -433,8 +489,23 @@ export default function Dashboard() {
         reader.readAsDataURL(file);
     };
 
+    const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onloadend = () => updateActiveProject({ logoPreview: reader.result as string });
+        reader.readAsDataURL(file);
+    };
+
     const handleGenerate = async (angle?: string, count: number = 1) => {
-        if (!apiKey || !activeProject?.productPreview) return;
+        if (!apiKey) {
+            setToast({ msg: "⚠️ Configura tu API Key en la pestaña de Configuración para activar la IA", type: 'error' });
+            return;
+        }
+        if (!activeProject?.productPreview) {
+            setToast({ msg: "Sube una foto de producto primero", type: 'error' });
+            return;
+        }
         setIsLoading(true);
         if (!angle) updateActiveProject({ results: [] });
         try {
@@ -443,6 +514,7 @@ export default function Dashboard() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     productBase64: activeProject.productPreview,
+                    logoBase64: activeProject.logoPreview,
                     userPrompt: activeProject.userPrompt,
                     apiKey: apiKey,
                     specificAngle: angle || (selectedAngle === "ALL" ? undefined : selectedAngle),
@@ -638,12 +710,6 @@ export default function Dashboard() {
                         <button onClick={() => { setIsAdmin(false); localStorage.setItem(getUKey("clickads_admin_mode"), "false"); }} style={{ border: "1px solid #10B981", color: "#10B981", background: "none", padding: "8px 16px", borderRadius: 100, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>Salir de Modo Admin</button>
                     )}
                     <button onClick={() => { setTempApiKey(apiKey); setShowApiModal(true); }} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#9CA3AF", padding: "12px 24px", borderRadius: 100, fontSize: 13, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}><Key size={14} /> Configuración API</button>
-                    <button
-                        onClick={() => { localStorage.removeItem("clickads_user"); router.push("/login"); }}
-                        style={{ color: "#4B5563", background: "none", border: "none", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 8, padding: "0 24px", cursor: "pointer", textAlign: "left" }}
-                    >
-                        <LogOut size={14} /> Cerrar Sesión
-                    </button>
                 </div>
             </aside>
 
@@ -752,6 +818,12 @@ export default function Dashboard() {
                                                 </div>
                                             </div>
                                             <div>
+                                                <div style={{ border: "2px dashed rgba(255,255,255,0.1)", borderRadius: 16, height: 100, position: "relative", marginBottom: 0, overflow: "hidden" }}>
+                                                    <input type="file" onChange={handleLogoChange} style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer", zIndex: 10 }} />
+                                                    {activeProject?.logoPreview ? <img src={activeProject.logoPreview} style={{ width: "100%", height: "100%", objectFit: "contain" }} /> : <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 4, opacity: 0.3 }}><Plus size={16} /> <span style={{ fontSize: 10 }}>Sube tu Logo</span></div>}
+                                                </div>
+                                            </div>
+                                            <div>
                                                 <label style={{ display: "block", fontSize: 12, fontWeight: 800, color: activeProject?.primaryColor, marginBottom: 12 }}>INSTRUCCIONES ADICIONALES</label>
                                                 <textarea className="input-field" placeholder="Ej: Resalta la frescura, estilo elegante..." style={{ height: 120 }} value={activeProject?.userPrompt} onChange={(e) => updateActiveProject({ userPrompt: e.target.value })} />
                                             </div>
@@ -842,6 +914,26 @@ export default function Dashboard() {
                                     </div>
 
                                     <div>
+                                        <div style={{ border: "2px dashed rgba(255,255,255,0.1)", borderRadius: 16, height: 100, position: "relative", marginBottom: 0, overflow: "hidden" }}>
+                                            <input type="file" accept="image/*" onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    const reader = new FileReader();
+                                                    reader.onload = (ev) => updateActiveProject({ logoPreview: ev.target?.result as string });
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            }} style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer", zIndex: 10 }} />
+                                            {projects.find(p => p.id === activeProjectId)?.logoPreview ? (
+                                                <img src={projects.find(p => p.id === activeProjectId)?.logoPreview} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                                            ) : (
+                                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 4, opacity: 0.3 }}>
+                                                    <Plus size={16} /> <span style={{ fontSize: 10 }}>Sube tu Logo</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div>
                                         <label style={{ display: "block", fontSize: 12, fontWeight: 800, color: "#8B5CF6", marginBottom: 12 }}>HERRAMIENTA</label>
                                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                                             <button
@@ -901,8 +993,8 @@ export default function Dashboard() {
                                                 return;
                                             }
                                             if (!apiKey) {
-                                                setShowApiModal(true);
-                                                setToast({ msg: "Configura tu API Key primero", type: 'error' });
+                                                setToast({ msg: "⚠️ Ve a Configuración y guarda tu API Key de Gemini para usar esta herramienta", type: 'error' });
+                                                setActiveTab('settings'); // Opcional: llevarlo a configuración
                                                 return;
                                             }
                                             setIsStudioLoading(true);
@@ -912,6 +1004,7 @@ export default function Dashboard() {
                                                     headers: { "Content-Type": "application/json" },
                                                     body: JSON.stringify({
                                                         productBase64: studioImage,
+                                                        logoBase64: activeProject?.logoPreview,
                                                         mode: studioMode,
                                                         apiKey,
                                                         gender: studioGender,
@@ -1428,6 +1521,7 @@ export default function Dashboard() {
                                             onClick={() => {
                                                 setApiKey(tempApiKey);
                                                 localStorage.setItem(getUKey("clickads_api_key"), tempApiKey);
+                                                localStorage.setItem("clickads_api_key_global", tempApiKey); // Guardar también global para persistencia total
                                                 setToast({ msg: "API Key guardada correctamente", type: 'success' });
                                             }}
                                             className="btn-primary"
