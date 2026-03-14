@@ -90,27 +90,19 @@ export default function Dashboard() {
     const [apiKey, setApiKey] = useState("");
     const [userPhoto, setUserPhoto] = useState<string | null>(null);
 
-    // Auth Protection REMOVED per user request - Login is now fully bypassed
+    // Auth Protection RESTORED - Selective access check
     useEffect(() => {
         const savedUser = localStorage.getItem("clickads_user");
         if (!savedUser) {
-            const mockUser = {
-                name: "Admin ClickAds",
-                email: "admin@clickads.tech"
-            };
-            localStorage.setItem("clickads_user", JSON.stringify(mockUser));
-            setUser(mockUser);
+            router.push("/login");
         } else {
             setUser(JSON.parse(savedUser));
         }
 
-        // Force Admin Mode by default for "Acceso Total"
-        const adminStatus = localStorage.getItem(getUKey("clickads_admin_mode"));
-        if (adminStatus !== 'false') { // If never set or explicitly true
-            setIsAdmin(true);
-            localStorage.setItem(getUKey("clickads_admin_mode"), "true");
-        }
-    }, []);
+        // Admin Mode state recovery
+        const adminStatus = localStorage.getItem(getUKey("clickads_admin_mode")) === 'true';
+        setIsAdmin(adminStatus);
+    }, [router]);
 
     // Admin State (In a real app, this comes from auth/roles)
     const [isAdmin, setIsAdmin] = useState(false);
@@ -186,7 +178,7 @@ export default function Dashboard() {
             setTempApiKey(savedKey);
         }
 
-        const adminStatus = localStorage.getItem(getUKey("clickads_admin_mode")) !== 'false';
+        const adminStatus = localStorage.getItem(getUKey("clickads_admin_mode")) === 'true';
         setIsAdmin(adminStatus);
 
         const savedProjects = localStorage.getItem(getUKey("clickads_projects"));
@@ -710,6 +702,12 @@ export default function Dashboard() {
                         <button onClick={() => { setIsAdmin(false); localStorage.setItem(getUKey("clickads_admin_mode"), "false"); }} style={{ border: "1px solid #10B981", color: "#10B981", background: "none", padding: "8px 16px", borderRadius: 100, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>Salir de Modo Admin</button>
                     )}
                     <button onClick={() => { setTempApiKey(apiKey); setShowApiModal(true); }} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#9CA3AF", padding: "12px 24px", borderRadius: 100, fontSize: 13, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}><Key size={14} /> Configuración API</button>
+                    <button
+                        onClick={() => { localStorage.removeItem("clickads_user"); router.push("/login"); }}
+                        style={{ color: "#4B5563", background: "none", border: "none", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 8, padding: "0 24px", cursor: "pointer", textAlign: "left" }}
+                    >
+                        <LogOut size={14} /> Cerrar Sesión
+                    </button>
                 </div>
             </aside>
 
