@@ -1,3 +1,10 @@
+import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+export async function POST(request: Request) {
+    try {
+        const body = await request.json();
+        const { event, data } = body;
 
         const supabase = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -7,7 +14,9 @@
         const email = data.buyer?.email?.toLowerCase();
         const fullName = data.buyer?.name;
 
-        if (!email) return NextResponse.json({ error: "No email provided" }, { status: 400 });
+        if (!email) {
+            return NextResponse.json({ error: "No email provided" }, { status: 400 });
+        }
 
         console.log(`Hotmart Event: ${event} for ${email}`);
 
@@ -18,7 +27,7 @@
         const approvedEvents = [
             'PUR_APPROVED',
             'PUR_COMPLETE',
-            'BIL_PRINTED', // Opcional: Permitir acceso mientras paga el boleto?
+            'BIL_PRINTED', 
         ];
 
         // Eventos que suspenden temporalmente (Mora)
@@ -37,7 +46,6 @@
         ];
 
         if (approvedEvents.includes(event)) {
-            status = 'active';
             const { error } = await supabase
                 .from('authorized_users')
                 .upsert({
@@ -72,4 +80,3 @@
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
-
