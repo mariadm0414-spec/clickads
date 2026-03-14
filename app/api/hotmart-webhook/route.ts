@@ -1,11 +1,3 @@
-import { createClient } from "@supabase/supabase-js";
-import { NextResponse } from "next/server";
-
-export async function POST(req: Request) {
-    try {
-        const body = await req.json();
-        const event = body.event;
-        const data = body.data;
 
         const supabase = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -80,3 +72,4 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
+
