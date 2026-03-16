@@ -89,6 +89,7 @@ export default function Dashboard() {
     const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
     const [apiKey, setApiKey] = useState("");
     const [userPhoto, setUserPhoto] = useState<string | null>(null);
+    const [selectedRatio, setSelectedRatio] = useState<'4:5' | '9:16' | 'both'>('4:5');
 
     // Auth Protection RESTORED - Selective access check
     useEffect(() => {
@@ -500,29 +501,37 @@ export default function Dashboard() {
         }
         setIsLoading(true);
         if (!angle) updateActiveProject({ results: [] });
+        const ratiosToGenerate = selectedRatio === 'both' ? ['4:5', '9:16'] : [selectedRatio];
+        let allVariations: any[] = [];
+
         try {
-            const res = await fetch("/api/vertex-ai/generate-1plus4", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    productBase64: activeProject.productPreview,
-                    logoBase64: activeProject.logoPreview,
-                    userPrompt: activeProject.userPrompt,
-                    apiKey: apiKey,
-                    specificAngle: angle || (selectedAngle === "ALL" ? undefined : selectedAngle),
-                    count: count,
-                    primaryColor: activeProject.primaryColor,
-                    secondaryColor: activeProject.secondaryColor,
-                    font: activeProject.font
-                }),
-            });
-            const data = await res.json();
-            if (data.error) throw new Error(data.error);
+            for (const ratio of ratiosToGenerate) {
+                const res = await fetch("/api/vertex-ai/generate-1plus4", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        productBase64: activeProject.productPreview,
+                        logoBase64: activeProject.logoPreview,
+                        userPrompt: activeProject.userPrompt,
+                        apiKey: apiKey,
+                        specificAngle: angle || (selectedAngle === "ALL" ? undefined : selectedAngle),
+                        count: count,
+                        primaryColor: activeProject.primaryColor,
+                        secondaryColor: activeProject.secondaryColor,
+                        font: activeProject.font,
+                        aspectRatio: ratio
+                    }),
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+                allVariations = [...allVariations, ...(data.variations || [])];
+            }
+
             if (angle) {
-                const newResults = [...activeProject.results, ...(data.variations || [])];
+                const newResults = [...activeProject.results, ...allVariations];
                 updateActiveProject({ results: newResults });
             } else {
-                updateActiveProject({ results: data.variations || [] });
+                updateActiveProject({ results: allVariations });
             }
         } catch (error: any) { setToast({ msg: error.message, type: 'error' }); } finally { setIsLoading(false); }
     };
@@ -826,6 +835,28 @@ export default function Dashboard() {
                                                 <textarea className="input-field" placeholder="Ej: Resalta la frescura, estilo elegante..." style={{ height: 120 }} value={activeProject?.userPrompt} onChange={(e) => updateActiveProject({ userPrompt: e.target.value })} />
                                             </div>
                                             <div>
+                                                <label style={{ display: "block", fontSize: 12, fontWeight: 800, color: activeProject?.primaryColor, marginBottom: 12 }}>FORMATO / DIMENSIONES</label>
+                                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 24 }}>
+                                                    <button
+                                                        onClick={() => setSelectedRatio('4:5')}
+                                                        style={{ padding: "12px", borderRadius: 12, fontSize: 10, fontWeight: 800, cursor: "pointer", border: selectedRatio === '4:5' ? `2px solid ${activeProject?.primaryColor}` : "1px solid rgba(255,255,255,0.1)", background: selectedRatio === '4:5' ? `${activeProject?.primaryColor}10` : "transparent", color: selectedRatio === '4:5' ? activeProject?.primaryColor : "#9CA3AF" }}
+                                                    >
+                                                        Feed (4:5)
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setSelectedRatio('9:16')}
+                                                        style={{ padding: "12px", borderRadius: 12, fontSize: 10, fontWeight: 800, cursor: "pointer", border: selectedRatio === '9:16' ? `2px solid ${activeProject?.primaryColor}` : "1px solid rgba(255,255,255,0.1)", background: selectedRatio === '9:16' ? `${activeProject?.primaryColor}10` : "transparent", color: selectedRatio === '9:16' ? activeProject?.primaryColor : "#9CA3AF" }}
+                                                    >
+                                                        Stories (9:16)
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setSelectedRatio('both')}
+                                                        style={{ padding: "12px", borderRadius: 12, fontSize: 10, fontWeight: 800, cursor: "pointer", border: selectedRatio === 'both' ? `2px solid ${activeProject?.primaryColor}` : "1px solid rgba(255,255,255,0.1)", background: selectedRatio === 'both' ? `${activeProject?.primaryColor}10` : "transparent", color: selectedRatio === 'both' ? activeProject?.primaryColor : "#9CA3AF" }}
+                                                    >
+                                                        Ambas
+                                                    </button>
+                                                </div>
+
                                                 <label style={{ display: "block", fontSize: 12, fontWeight: 800, color: activeProject?.primaryColor, marginBottom: 12 }}>ÁNGULO DE VENTA</label>
                                                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 }}>
                                                     {[
@@ -932,6 +963,28 @@ export default function Dashboard() {
                                     </div>
 
                                     <div>
+                                        <label style={{ display: "block", fontSize: 12, fontWeight: 800, color: "#8B5CF6", marginBottom: 12 }}>FORMATO</label>
+                                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 24 }}>
+                                            <button
+                                                onClick={() => setSelectedRatio('4:5')}
+                                                style={{ padding: "12px", borderRadius: 12, fontSize: 10, fontWeight: 800, cursor: "pointer", border: selectedRatio === '4:5' ? "2px solid #8B5CF6" : "1px solid rgba(255,255,255,0.1)", background: selectedRatio === '4:5' ? "rgba(139,92,246,0.1)" : "transparent", color: selectedRatio === '4:5' ? "#8B5CF6" : "#9CA3AF" }}
+                                            >
+                                                Feed (4:5)
+                                            </button>
+                                            <button
+                                                onClick={() => setSelectedRatio('9:16')}
+                                                style={{ padding: "12px", borderRadius: 12, fontSize: 10, fontWeight: 800, cursor: "pointer", border: selectedRatio === '9:16' ? "2px solid #8B5CF6" : "1px solid rgba(255,255,255,0.1)", background: selectedRatio === '9:16' ? "rgba(139,92,246,0.1)" : "transparent", color: selectedRatio === '9:16' ? "#8B5CF6" : "#9CA3AF" }}
+                                            >
+                                                Stories (9:16)
+                                            </button>
+                                            <button
+                                                onClick={() => setSelectedRatio('both')}
+                                                style={{ padding: "12px", borderRadius: 12, fontSize: 10, fontWeight: 800, cursor: "pointer", border: selectedRatio === 'both' ? "2px solid #8B5CF6" : "1px solid rgba(255,255,255,0.1)", background: selectedRatio === 'both' ? "rgba(139,92,246,0.1)" : "transparent", color: selectedRatio === 'both' ? "#8B5CF6" : "#9CA3AF" }}
+                                            >
+                                                Ambas
+                                            </button>
+                                        </div>
+
                                         <label style={{ display: "block", fontSize: 12, fontWeight: 800, color: "#8B5CF6", marginBottom: 12 }}>HERRAMIENTA</label>
                                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                                             <button
@@ -1071,385 +1124,61 @@ export default function Dashboard() {
                 )}
 
                 {activeTab === 'community' && (
-                    <div style={{ maxWidth: 850, margin: "0 auto" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 40 }}>
-                            <div style={{ width: 48, height: 48, background: "rgba(139, 92, 246, 0.2)", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center" }}><Globe color="#8B5CF6" /></div>
-                            <div>
-                                <h1 style={{ fontSize: 28, fontWeight: 900 }}>Comunidad ClickAds</h1>
-                                <p style={{ color: "#9CA3AF", fontSize: 14 }}>Conecta, comparte y escala con otros dropshippers.</p>
-                            </div>
-                        </div>
-
-                        <div style={{ display: "flex", gap: 8, marginBottom: 32, background: "rgba(255,255,255,0.02)", padding: 6, borderRadius: 12, width: "fit-content", border: "1px solid rgba(255,255,255,0.05)" }}>
-                            <div className={`community-cat ${activeCategory === 'all' ? 'active' : ''}`} onClick={() => setActiveCategory('all')}><Layout size={16} /> All</div>
-                            <div className={`community-cat ${activeCategory === 'presentacion' ? 'active' : ''}`} onClick={() => setActiveCategory('presentacion')}><User size={16} /> Presentación</div>
-                            <div className={`community-cat ${activeCategory === 'soporte' ? 'active' : ''}`} onClick={() => setActiveCategory('soporte')}><HelpCircle size={16} /> Soporte</div>
-                            <div className={`community-cat ${activeCategory === 'logros' ? 'active' : ''}`} onClick={() => setActiveCategory('logros')}><Award size={16} /> Logros y Wins</div>
-                        </div>
-
-                        <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 24, padding: 24, border: "1px solid rgba(139, 92, 246, 0.2)", marginBottom: 40 }}>
-                            <div style={{ display: "flex", gap: 16 }}>
-                                <img src={getAvatarUrl()} style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(255,255,255,0.05)" }} />
-                                <div style={{ flex: 1 }}>
-                                    <textarea
-                                        className="input-field"
-                                        placeholder={`¿Qué tienes en mente para ${activeCategory === 'all' ? 'la comunidad' : activeCategory}?`}
-                                        style={{ background: "transparent", border: "none", minHeight: 60, padding: 0, fontSize: 16 }}
-                                        value={newPostContent}
-                                        onChange={(e) => setNewPostContent(e.target.value)}
-                                    />
-
-                                    {newPostImage && (
-                                        <div style={{ position: "relative", width: "fit-content", marginTop: 16 }}>
-                                            <img src={newPostImage} style={{ maxWidth: "100%", maxHeight: 200, borderRadius: 12 }} />
-                                            <button
-                                                onClick={() => setNewPostImage(null)}
-                                                style={{ position: "absolute", top: -8, right: -8, background: "#EF4444", color: "#fff", border: "none", borderRadius: "50%", width: 24, height: 24, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-                                            >
-                                                <X size={14} />
-                                            </button>
-                                        </div>
-                                    )}
-
-                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 16, paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-                                        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                                            <select
-                                                style={{ background: "rgba(255,255,255,0.05)", border: "none", color: "#9CA3AF", padding: "4px 8px", borderRadius: 6, fontSize: 12, outline: "none" }}
-                                                value={postingTo}
-                                                onChange={(e) => setPostingTo(e.target.value as any)}
-                                            >
-                                                <option value="presentacion">📌 Presentación</option>
-                                                <option value="soporte">🛠️ Soporte</option>
-                                                <option value="logros">🏆 Logros y Wins</option>
-                                            </select>
-
-                                            <label style={{ display: "flex", alignItems: "center", gap: 8, color: "#9CA3AF", fontSize: 12, cursor: "pointer", fontWeight: 700, padding: "4px 8px", borderRadius: 6, background: "rgba(255,255,255,0.02)" }}>
-                                                <UploadCloud size={16} /> Subir Imagen
-                                                <input
-                                                    type="file"
-                                                    hidden
-                                                    accept="image/*"
-                                                    onChange={(e) => {
-                                                        const file = e.target.files?.[0];
-                                                        if (file) {
-                                                            const reader = new FileReader();
-                                                            reader.onload = (ev) => setNewPostImage(ev.target?.result as string);
-                                                            reader.readAsDataURL(file);
-                                                        }
-                                                    }}
-                                                />
-                                            </label>
-                                        </div>
-                                        <button className="btn-primary" style={{ padding: "8px 24px", fontSize: 14 }} onClick={() => {
-                                            if (!newPostContent.trim() && !newPostImage) return;
-                                            const newPost: Post = {
-                                                id: Math.random().toString(36).substr(2, 9),
-                                                author: user?.name || "Usuario VIP",
-                                                authorAvatar: getAvatarUrl(),
-                                                category: postingTo,
-                                                content: newPostContent,
-                                                image: newPostImage || undefined,
-                                                timestamp: Date.now(),
-                                                likes: 0,
-                                                comments: []
-                                            };
-                                            setPosts([newPost, ...posts]);
-                                            setNewPostContent("");
-                                            setNewPostImage(null);
-                                            setToast({ msg: "Publicación compartida", type: 'success' });
-                                        }}>Publicar <Send size={14} /></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            {posts.filter(p => activeCategory === 'all' || p.category === activeCategory).map(post => (
-                                <div key={post.id} className="post-card">
-                                    {isAdmin && (
-                                        <button onClick={() => deletePost(post.id)} style={{ position: "absolute", top: 20, right: 20, background: "rgba(239, 68, 68, 0.1)", border: "none", color: "#EF4444", width: 32, height: 32, borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><Trash2 size={14} /></button>
-                                    )}
-                                    <div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
-                                        <img src={post.authorAvatar} style={{ width: 44, height: 44, borderRadius: 12 }} />
-                                        <div style={{ flex: 1 }}>
-                                            <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                                <div style={{ fontWeight: 800, fontSize: 15 }}>{post.author}</div>
-                                                <div style={{ fontSize: 12, color: "#4B5563" }}>{new Date(post.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                                            </div>
-                                            <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
-                                                <span style={{ fontSize: 10, background: "rgba(139, 92, 246, 0.1)", color: "#8B5CF6", padding: "2px 8px", borderRadius: 4, fontWeight: 900, textTransform: "uppercase" }}>{post.category}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <p style={{ fontSize: 15, lineHeight: 1.6, color: "#E5E7EB", marginBottom: 20 }}>{post.content}</p>
-                                    {post.image && <img src={post.image} style={{ width: "100%", borderRadius: 16, marginBottom: 20 }} />}
-                                    <div style={{ display: "flex", gap: 24, borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 16 }}>
-                                        <button
-                                            onClick={() => toggleLike(post.id)}
-                                            style={{ background: "none", border: "none", color: post.likedByMe ? "#8B5CF6" : "#9CA3AF", display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 13, fontWeight: post.likedByMe ? 800 : 500 }}
-                                        >
-                                            <Heart size={16} fill={post.likedByMe ? "#8B5CF6" : "none"} /> {post.likes}
-                                        </button>
-                                        <button
-                                            onClick={() => setCommentingTo(commentingTo === post.id ? null : post.id)}
-                                            style={{ background: "none", border: "none", color: commentingTo === post.id ? "#8B5CF6" : "#9CA3AF", display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 13 }}
-                                        >
-                                            <MessageSquare size={16} /> {post.comments.length}
-                                        </button>
-                                    </div>
-
-                                    {commentingTo === post.id && (
-                                        <div style={{ marginTop: 20, paddingTop: 20, borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-                                            <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
-                                                <img src={getAvatarUrl()} style={{ width: 32, height: 32, borderRadius: 8 }} />
-                                                <div style={{ flex: 1, display: "flex", gap: 8 }}>
-                                                    <input
-                                                        className="input-field"
-                                                        placeholder="Escribe un comentario..."
-                                                        style={{ height: 40, fontSize: 13 }}
-                                                        value={tempComment}
-                                                        onChange={(e) => setTempComment(e.target.value)}
-                                                        onKeyDown={(e) => e.key === 'Enter' && addComment(post.id)}
-                                                    />
-                                                    <button className="btn-primary" style={{ padding: "0 16px" }} onClick={() => addComment(post.id)}><Send size={14} /></button>
-                                                </div>
-                                            </div>
-                                            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                                                {[...post.comments].sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0)).map(c => (
-                                                    <div key={c.id} style={{ display: "flex", gap: 12, position: "relative" }}>
-                                                        <img src={c.authorAvatar} style={{ width: 28, height: 28, borderRadius: 6 }} />
-                                                        <div style={{ flex: 1, background: c.isPinned ? "rgba(139, 92, 246, 0.1)" : "rgba(255,255,255,0.02)", padding: "10px 14px", borderRadius: 12, border: c.isPinned ? "1px solid rgba(139, 92, 246, 0.3)" : "1px solid transparent" }}>
-                                                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                                                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                                                    <div style={{ fontSize: 12, fontWeight: 800 }}>{c.author}</div>
-                                                                    {c.isPinned && <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#8B5CF6", fontSize: 10, fontWeight: 900 }}><Bookmark size={10} fill="#8B5CF6" /> ANCLADO</div>}
-                                                                </div>
-                                                                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                                                                    <div style={{ fontSize: 10, color: "#4B5563" }}>{new Date(c.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                                                                    {isAdmin && (
-                                                                        <button
-                                                                            onClick={() => togglePinComment(post.id, c.id)}
-                                                                            style={{ background: "none", border: "none", color: c.isPinned ? "#8B5CF6" : "#4B5563", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-                                                                        >
-                                                                            <Minus size={14} style={{ transform: "rotate(90deg)" }} />
-                                                                        </button>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                            <div style={{ fontSize: 13, color: "#9CA3AF", lineHeight: 1.4 }}>{c.content}</div>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
+                    <div style={{ height: "70vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <a
+                            href="https://chat.whatsapp.com/F6OP4KUv1Us2fTd0cbnBUE"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-primary"
+                            style={{
+                                padding: "48px 80px",
+                                fontSize: "32px",
+                                borderRadius: "32px",
+                                background: "linear-gradient(135deg, #25D366 0%, #128C7E 100%)",
+                                boxShadow: "0 20px 50px rgba(37, 211, 102, 0.4)",
+                                border: "1px solid rgba(255,255,255,0.1)",
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                gap: "24px",
+                                transition: "all 0.3s ease"
+                            }}
+                        >
+                            <Users size={64} />
+                            <span style={{ fontWeight: 900, letterSpacing: "1px" }}>ACCEDER A COMUNIDAD</span>
+                        </a>
                     </div>
                 )}
 
                 {activeTab === 'tutorials' && (
-                    <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-                        {!activeModuleId ? (
-                            <>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 40 }}>
-                                    <h1 style={{ fontSize: 32, fontWeight: 900 }}>Módulos de Formación</h1>
-                                    {isAdmin && (
-                                        <button className="btn-primary" onClick={() => setShowModuleModal(true)} style={{ background: "#10B981" }}><Plus size={18} /> Crear Módulo</button>
-                                    )}
-                                </div>
-                                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 32 }}>
-                                    {modules.map((mod) => (
-                                        <div key={mod.id} className="glass-card clickable" onClick={() => setActiveModuleId(mod.id)} style={{ padding: 0, overflow: "hidden", position: "relative" }}>
-                                            {isAdmin && (
-                                                <button onClick={(e) => deleteModule(mod.id, e)} style={{ position: "absolute", top: 12, right: 12, background: "rgba(239, 68, 68, 0.8)", border: "none", color: "#fff", width: 32, height: 32, borderRadius: 10, cursor: "pointer", zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center" }}><Trash2 size={16} /></button>
-                                            )}
-                                            <img src={mod.cover} style={{ width: "100%", height: 180, objectFit: "cover" }} />
-                                            <div style={{ padding: 24 }}>
-                                                <h3 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>{mod.title}</h3>
-                                                <div style={{ color: "#4B5563", fontSize: 13, fontWeight: 700 }}>{mod.videos.length} LECCIONES</div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </>
-                        ) : (
-                            <div>
-                                <button onClick={() => { setActiveModuleId(null); setActiveVideoId(null); }} style={{ background: "none", border: "none", color: "#9CA3AF", display: "flex", alignItems: "center", gap: 8, cursor: "pointer", marginBottom: 32, fontSize: 14, fontWeight: 800 }}><ArrowLeft size={16} /> VOLVER A MÓDULOS</button>
-
-                                {(() => {
-                                    const currentMod = modules.find(m => m.id === activeModuleId)!;
-                                    const currentVideo = currentMod.videos.find(v => v.id === activeVideoId) || currentMod.videos[0];
-
-                                    return (
-                                        <div style={{ display: "grid", gridTemplateColumns: "1fr 350px", gap: 40 }}>
-                                            <div>
-                                                {currentVideo ? (
-                                                    <div>
-                                                        <div style={{ aspectRatio: "16/9", background: "#000", borderRadius: 24, overflow: "hidden", border: "1px solid rgba(255,255,255,0.05)", marginBottom: 24 }}>
-                                                            <iframe width="100%" height="100%" src={currentVideo.youtubeUrl} frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
-                                                        </div>
-                                                        <h2 style={{ fontSize: 28, fontWeight: 900, marginBottom: 12 }}>{currentVideo.title}</h2>
-
-                                                        <div style={{ display: "flex", gap: 24, marginBottom: 40, borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: 20 }}>
-                                                            <button onClick={() => toggleVideoLike(currentMod.id, currentVideo.id)} style={{ background: "none", border: "none", color: currentVideo.likedByMe ? "#8B5CF6" : "#fff", display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 15, fontWeight: 800 }}>
-                                                                <Heart fill={currentVideo.likedByMe ? "#8B5CF6" : "none"} size={20} /> {currentVideo.likes} Likes
-                                                            </button>
-                                                            <div style={{ color: "#4B5563", display: "flex", alignItems: "center", gap: 8, fontSize: 15, fontWeight: 800 }}>
-                                                                <MessageSquare size={20} /> {currentVideo.comments.length} Comentarios
-                                                            </div>
-                                                        </div>
-
-                                                        <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 24, padding: 32 }}>
-                                                            <h4 style={{ fontSize: 18, fontWeight: 800, marginBottom: 24 }}>Comentarios de la Clase</h4>
-                                                            <div style={{ display: "flex", gap: 16, marginBottom: 32 }}>
-                                                                <img src={getAvatarUrl()} style={{ width: 40, height: 40, borderRadius: 12 }} />
-                                                                <input
-                                                                    className="input-field"
-                                                                    placeholder="Escribe tu duda o feedback..."
-                                                                    onKeyDown={(e) => {
-                                                                        if (e.key === 'Enter') {
-                                                                            addVideoComment(currentMod.id, currentVideo.id, e.currentTarget.value);
-                                                                            e.currentTarget.value = "";
-                                                                        }
-                                                                    }}
-                                                                />
-                                                            </div>
-                                                            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-                                                                {currentVideo.comments.map(c => (
-                                                                    <div key={c.id} style={{ display: "flex", gap: 16 }}>
-                                                                        <img src={c.authorAvatar} style={{ width: 32, height: 32, borderRadius: 10 }} />
-                                                                        <div>
-                                                                            <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 4 }}>{c.author}</div>
-                                                                            <div style={{ fontSize: 14, color: "#9CA3AF", lineHeight: 1.5 }}>{c.content}</div>
-                                                                        </div>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <div className="glass-card" style={{ padding: 60, textAlign: "center", opacity: 0.5 }}>
-                                                        <Video size={48} style={{ marginBottom: 16 }} />
-                                                        <h3 style={{ fontSize: 20, fontWeight: 800 }}>Módulo vacío</h3>
-                                                        <p>Este módulo aún no tiene videos disponibles.</p>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            <div>
-                                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                                                    <h4 style={{ fontSize: 16, fontWeight: 800, color: "#4B5563" }}>LISTA DE VIDEOS</h4>
-                                                    {isAdmin && (
-                                                        <button onClick={() => setShowVideoModal(true)} style={{ background: "#10B981", border: "none", color: "#fff", width: 32, height: 32, borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><Plus size={16} /></button>
-                                                    )}
-                                                </div>
-                                                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                                                    {currentMod.videos.map((vid, ix) => (
-                                                        <div key={vid.id} style={{ position: "relative" }}>
-                                                            <button
-                                                                onClick={() => setActiveVideoId(vid.id)}
-                                                                style={{
-                                                                    width: "100%",
-                                                                    background: activeVideoId === vid.id || (!activeVideoId && ix === 0) ? "rgba(139, 92, 246, 0.2)" : "rgba(255,255,255,0.03)",
-                                                                    border: activeVideoId === vid.id || (!activeVideoId && ix === 0) ? "1px solid #8B5CF6" : "1px solid rgba(255,255,255,0.05)",
-                                                                    padding: "16px 20px",
-                                                                    borderRadius: 16,
-                                                                    color: "#fff",
-                                                                    textAlign: "left",
-                                                                    cursor: "pointer",
-                                                                    display: "flex",
-                                                                    alignItems: "center",
-                                                                    gap: 12,
-                                                                    fontWeight: 700,
-                                                                    paddingRight: isAdmin ? 50 : 20
-                                                                }}
-                                                            >
-                                                                <div style={{ width: 24, height: 24, borderRadius: "50%", background: "rgba(0,0,0,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>{ix + 1}</div>
-                                                                <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{vid.title}</span>
-                                                                <PlayCircle size={14} opacity={0.5} />
-                                                            </button>
-                                                            {isAdmin && (
-                                                                <button onClick={() => deleteVideo(currentMod.id, vid.id)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#EF4444", cursor: "pointer", padding: 8, zIndex: 10 }}><Trash2 size={14} /></button>
-                                                            )}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })()}
-                            </div>
-                        )}
+                    <div style={{ height: "70vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <a
+                            href="https://www.skool.com/de-cero-a-10x-3705/about"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-primary"
+                            style={{
+                                padding: "48px 80px",
+                                fontSize: "28px",
+                                borderRadius: "32px",
+                                background: "linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)",
+                                boxShadow: "0 20px 50px rgba(139, 92, 246, 0.4)",
+                                border: "1px solid rgba(255,255,255,0.1)",
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                gap: "24px",
+                                transition: "all 0.3s ease",
+                                textAlign: "center",
+                                maxWidth: "800px"
+                            }}
+                        >
+                            <PlayCircle size={64} />
+                            <span style={{ fontWeight: 900, letterSpacing: "1px" }}>ACCEDER A COMUNIDAD DE CLASES Y TUTORIALES</span>
+                        </a>
                     </div>
                 )}
 
-                {/* Modales de Tutoriales */}
-                {showModuleModal && (
-                    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(20px)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <div className="glass-card" style={{ maxWidth: 450, width: "100%", padding: 40 }}>
-                            <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 32 }}>Nuevo Módulo</h2>
-                            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                                <div>
-                                    <label style={{ fontSize: 11, fontWeight: 900, color: "#4B5563", marginBottom: 8, display: "block" }}>TÍTULO DEL MÓDULO</label>
-                                    <input className="input-field" placeholder="Ejem: Estrategia de Escalamiento..." value={newModuleTitle} onChange={(e) => setNewModuleTitle(e.target.value)} />
-                                </div>
-                                <div>
-                                    <label style={{ fontSize: 11, fontWeight: 900, color: "#4B5563", marginBottom: 12, display: "block" }}>PORTADA DEL MÓDULO</label>
-                                    <div style={{ border: "2px dashed rgba(255,255,255,0.1)", borderRadius: 16, height: 160, position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                        {newModuleCover ? (
-                                            <img src={newModuleCover} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                                        ) : (
-                                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, opacity: 0.3 }}>
-                                                <UploadCloud size={32} />
-                                                <span style={{ fontSize: 12, fontWeight: 700 }}>SUBIR IMAGEN</span>
-                                            </div>
-                                        )}
-                                        <input type="file" hidden accept="image/*" onChange={(e) => {
-                                            const file = e.target.files?.[0];
-                                            if (file) {
-                                                const reader = new FileReader();
-                                                reader.onload = (event) => setNewModuleCover(event.target?.result as string);
-                                                reader.readAsDataURL(file);
-                                            }
-                                        }} id="module-cover-upload" />
-                                        <label htmlFor="module-cover-upload" style={{ position: "absolute", inset: 0, cursor: "pointer" }}></label>
-                                    </div>
-                                    {newModuleCover && (
-                                        <button onClick={() => setNewModuleCover("")} style={{ background: "none", border: "none", color: "#EF4444", fontSize: 11, fontWeight: 800, marginTop: 8, cursor: "pointer" }}>Eliminar seleccionada</button>
-                                    )}
-                                </div>
-                                <div style={{ display: "flex", gap: 16, marginTop: 12 }}>
-                                    <button onClick={() => setShowModuleModal(false)} style={{ flex: 1, padding: 14, borderRadius: 12, background: "rgba(255,255,255,0.05)", border: "none", color: "#fff", cursor: "pointer" }}>Cancelar</button>
-                                    <button onClick={addModule} className="btn-primary" style={{ flex: 2, justifyContent: "center" }}>Crear Módulo</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {showVideoModal && (
-                    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(20px)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <div className="glass-card" style={{ maxWidth: 450, width: "100%", padding: 40 }}>
-                            <h2 style={{ fontSize: 24, fontWeight: 900, marginBottom: 32 }}>Agregar Video</h2>
-                            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                                <div>
-                                    <label style={{ fontSize: 11, fontWeight: 900, color: "#4B5563", marginBottom: 8, display: "block" }}>TÍTULO DEL VIDEO</label>
-                                    <input className="input-field" placeholder="Ejem: Clase 1: Configuración..." value={newVideoTitle} onChange={(e) => setNewVideoTitle(e.target.value)} />
-                                </div>
-                                <div>
-                                    <label style={{ fontSize: 11, fontWeight: 900, color: "#4B5563", marginBottom: 8, display: "block" }}>URL YOUTUBE</label>
-                                    <input className="input-field" placeholder="https://youtube.com/watch?v=..." value={newVideoUrl} onChange={(e) => setNewVideoUrl(e.target.value)} />
-                                </div>
-                                <div style={{ display: "flex", gap: 16, marginTop: 12 }}>
-                                    <button onClick={() => setShowVideoModal(false)} style={{ flex: 1, padding: 14, borderRadius: 12, background: "rgba(255,255,255,0.05)", border: "none", color: "#fff", cursor: "pointer" }}>Cancelar</button>
-                                    <button onClick={() => addVideoToModule(activeModuleId!)} className="btn-primary" style={{ flex: 2, justifyContent: "center" }}>Subir Video</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
                 {activeTab === 'settings' && (
                     <div style={{ maxWidth: 900, margin: "0 auto" }}>
                         <h1 style={{ fontSize: 32, fontWeight: 900, marginBottom: 40 }}>Configuración de Perfil</h1>
@@ -1674,3 +1403,4 @@ export default function Dashboard() {
         </div>
     );
 }
+
