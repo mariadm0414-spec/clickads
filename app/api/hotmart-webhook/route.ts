@@ -1,10 +1,11 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
+import { NextResponse } from "next/server";
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
     try {
-        const body = await request.json();
-        const { event, data } = body;
+        const body = await req.json();
+        const event = body.event;
+        const data = body.data;
 
         const supabase = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,8 +15,11 @@ export async function POST(request: Request) {
         const email = data.buyer?.email?.toLowerCase();
         const fullName = data.buyer?.name;
 
+        // Si no hay email, no podemos hacer nada en Supabase.
+        // Respondemos 200 para que Hotmart deje de reintentar un evento que no tiene datos suficientes.
         if (!email) {
-            return NextResponse.json({ error: "No email provided" }, { status: 400 });
+            console.log(`Skipping event ${event}: No email provided in payload.`);
+            return NextResponse.json({ success: true, message: "Process skipped: no email" });
         }
 
         console.log(`Hotmart Event: ${event} for ${email}`);
@@ -27,7 +31,7 @@ export async function POST(request: Request) {
         const approvedEvents = [
             'PUR_APPROVED',
             'PUR_COMPLETE',
-            'BIL_PRINTED', 
+            'BIL_PRINTED',
         ];
 
         // Eventos que suspenden temporalmente (Mora)
@@ -43,9 +47,11 @@ export async function POST(request: Request) {
             'PUR_REFUNDED',
             'PUR_EXPIRED',
             'PUR_CHARGEBACK',
+            'SUBSCRIPTION_CANCELLATION', // Añadido para suscripciones
         ];
 
         if (approvedEvents.includes(event)) {
+            status = 'active';
             const { error } = await supabase
                 .from('authorized_users')
                 .upsert({
