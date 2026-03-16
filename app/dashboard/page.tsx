@@ -152,7 +152,7 @@ export default function Dashboard() {
     const [studioMode, setStudioMode] = useState<'white_3d' | 'model'>('white_3d');
     const [studioGender, setStudioGender] = useState<'male' | 'female'>('female');
     const [studioBackgroundDesc, setStudioBackgroundDesc] = useState("");
-    const [studioResult, setStudioResult] = useState<string | null>(null);
+    const [studioResults, setStudioResults] = useState<{ image: string, ratio: string }[]>([]);
     const [isStudioLoading, setIsStudioLoading] = useState(false);
 
     useEffect(() => {
@@ -580,6 +580,25 @@ export default function Dashboard() {
         setToast({ msg: "Iniciando descarga...", type: 'success' });
     };
 
+    const downloadAsZip = async (images: { image: string, name: string }[], zipName: string) => {
+        const zip = new JSZip();
+        setToast({ msg: "Preparando carpeta ZIP...", type: 'success' });
+
+        for (let i = 0; i < images.length; i++) {
+            const { image, name } = images[i];
+            const response = await fetch(image);
+            const blob = await response.blob();
+            zip.file(`${name}_${i + 1}.png`, blob);
+        }
+
+        const content = await zip.generateAsync({ type: "blob" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(content);
+        link.download = `${zipName}_${Date.now()}.zip`;
+        link.click();
+        setToast({ msg: "¡ZIP descargado!", type: 'success' });
+    };
+
     const ColorPicker = ({ label, color, onChange }: { label: string, color: string, onChange: (c: string) => void }) => (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <label style={{ fontSize: 11, fontWeight: 800, color: "#9CA3AF", textTransform: "uppercase" }}>{label}</label>
@@ -890,6 +909,20 @@ export default function Dashboard() {
                                         </div>
                                     </div>
                                     <div>
+                                        {activeProject && activeProject.results.length > 0 && (
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                                                <h3 style={{ fontSize: 18, fontWeight: 800 }}>Resultados</h3>
+                                                {activeProject.results.length > 1 && (
+                                                    <button
+                                                        onClick={() => downloadAsZip(activeProject.results.map((r, idx) => ({ image: r.image, name: `${activeProject.name}_${idx}` })), "clickads_generador")}
+                                                        className="btn-primary"
+                                                        style={{ padding: "8px 16px", fontSize: 11, background: "rgba(255,255,255,0.05)", border: `1px solid ${activeProject.primaryColor}`, color: activeProject.primaryColor }}
+                                                    >
+                                                        <Layers size={14} /> Descargar Todos (.ZIP)
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
                                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
                                             {activeProject?.results.map((res, i) => (
                                                 <div key={i} className="glass-card" style={{ padding: 12, position: "relative" }}>
@@ -1049,28 +1082,36 @@ export default function Dashboard() {
                                                 return;
                                             }
                                             setIsStudioLoading(true);
+                                            setStudioResults([]);
+                                            const ratios = selectedRatio === 'both' ? ['4:5', '9:16'] : [selectedRatio];
+                                            const newResults: { image: string, ratio: string }[] = [];
+
                                             try {
-                                                const res = await fetch("/api/vertex-ai/photo-studio", {
-                                                    method: "POST",
-                                                    headers: { "Content-Type": "application/json" },
-                                                    body: JSON.stringify({
-                                                        productBase64: studioImage,
-                                                        logoBase64: activeProject?.logoPreview,
-                                                        mode: studioMode,
-                                                        apiKey,
-                                                        gender: studioGender,
-                                                        customBackground: studioBackgroundDesc
-                                                    })
-                                                });
-                                                const data = await res.json();
-                                                if (data.image) {
-                                                    setStudioResult(data.image);
-                                                    setToast({ msg: "¡Procesado con éxito!", type: 'success' });
-                                                } else {
-                                                    setToast({ msg: data.error || "Error al procesar", type: 'error' });
+                                                for (const ratio of ratios) {
+                                                    const res = await fetch("/api/vertex-ai/photo-studio", {
+                                                        method: "POST",
+                                                        headers: { "Content-Type": "application/json" },
+                                                        body: JSON.stringify({
+                                                            productBase64: studioImage,
+                                                            logoBase64: activeProject?.logoPreview,
+                                                            mode: studioMode,
+                                                            apiKey,
+                                                            gender: studioGender,
+                                                            customBackground: studioBackgroundDesc,
+                                                            aspectRatio: ratio
+                                                        })
+                                                    });
+                                                    const data = await res.json();
+                                                    if (data.image) {
+                                                        newResults.push({ image: data.image, ratio });
+                                                    } else {
+                                                        throw new Error(data.error || "Error al procesar");
+                                                    }
                                                 }
-                                            } catch (e) {
-                                                setToast({ msg: "Error de conexión", type: 'error' });
+                                                setStudioResults(newResults);
+                                                setToast({ msg: "¡Procesado con éxito!", type: 'success' });
+                                            } catch (e: any) {
+                                                setToast({ msg: e.message || "Error de conexión", type: 'error' });
                                             } finally {
                                                 setIsStudioLoading(false);
                                             }
@@ -1083,32 +1124,54 @@ export default function Dashboard() {
                             </div>
 
                             <div className="glass-card" style={{ padding: 40, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.01)" }}>
-                                {studioResult ? (
-                                    <div style={{ width: "100%", position: "relative" }}>
-                                        <img src={studioResult} style={{ width: "100%", borderRadius: 24, boxShadow: "0 20px 50px rgba(0,0,0,0.5)" }} />
-                                        <div style={{ position: "absolute", top: 20, right: 20, display: "flex", gap: 12 }}>
+                                {studioResults.length > 0 ? (
+                                    <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 32 }}>
+                                        <div style={{ display: "grid", gridTemplateColumns: studioResults.length > 1 ? "1fr 1fr" : "1fr", gap: 24 }}>
+                                            {studioResults.map((res, idx) => (
+                                                <div key={idx} style={{ position: "relative" }}>
+                                                    <img src={res.image} style={{ width: "100%", borderRadius: 16, boxShadow: "0 10px 30px rgba(0,0,0,0.3)" }} />
+                                                    <div style={{ position: "absolute", top: 12, right: 12, display: "flex", gap: 8 }}>
+                                                        <button
+                                                            onClick={() => downloadSingleImage(res.image, `studio_${res.ratio}`)}
+                                                            style={{ background: "rgba(0,0,0,0.6)", border: "none", color: "#fff", width: 32, height: 32, borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                                                        >
+                                                            <Download size={14} />
+                                                        </button>
+                                                    </div>
+                                                    <div style={{ position: "absolute", bottom: 12, left: 12, background: "rgba(139, 92, 246, 0.9)", color: "#fff", padding: "4px 10px", borderRadius: 8, fontSize: 10, fontWeight: 900 }}>
+                                                        {res.ratio}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
                                             <button
                                                 onClick={() => {
-                                                    setStudioResult(null);
+                                                    setStudioResults([]);
                                                     setStudioImage(null);
                                                 }}
                                                 className="btn-primary"
-                                                style={{ padding: "10px 20px", fontSize: 12, background: "rgba(239, 68, 68, 0.8)" }}
+                                                style={{ padding: "14px 28px", fontSize: 13, background: "rgba(255, 255, 255, 0.05)", color: "#fff" }}
                                             >
                                                 Empezar de nuevo
                                             </button>
-                                            <button
-                                                onClick={() => {
-                                                    const link = document.createElement("a");
-                                                    link.href = studioResult;
-                                                    link.download = `photo_studio_${Date.now()}.png`;
-                                                    link.click();
-                                                }}
-                                                className="btn-primary"
-                                                style={{ padding: "10px 20px", fontSize: 12 }}
-                                            >
-                                                <Download size={14} /> Descargar
-                                            </button>
+                                            {studioResults.length > 1 ? (
+                                                <button
+                                                    onClick={() => downloadAsZip(studioResults.map(r => ({ image: r.image, name: `studio_${r.ratio}` })), "clickads_studio")}
+                                                    className="btn-primary"
+                                                    style={{ padding: "14px 32px", fontSize: 13 }}
+                                                >
+                                                    <Layers size={18} /> Descargar Ambas (.ZIP)
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() => downloadSingleImage(studioResults[0].image, `studio_${studioResults[0].ratio}`)}
+                                                    className="btn-primary"
+                                                    style={{ padding: "14px 32px", fontSize: 13 }}
+                                                >
+                                                    <Download size={18} /> Descargar Imagen
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 ) : (
@@ -1403,4 +1466,3 @@ export default function Dashboard() {
         </div>
     );
 }
-
