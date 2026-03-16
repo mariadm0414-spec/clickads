@@ -581,22 +581,42 @@ export default function Dashboard() {
     };
 
     const downloadAsZip = async (images: { image: string, name: string }[], zipName: string) => {
-        const zip = new JSZip();
-        setToast({ msg: "Preparando carpeta ZIP...", type: 'success' });
+        try {
+            const zip = new JSZip();
+            setToast({ msg: "Preparando carpeta ZIP...", type: 'success' });
 
-        for (let i = 0; i < images.length; i++) {
-            const { image, name } = images[i];
-            const response = await fetch(image);
-            const blob = await response.blob();
-            zip.file(`${name}_${i + 1}.png`, blob);
+            for (let i = 0; i < images.length; i++) {
+                const { image, name } = images[i];
+
+                // Si la imagen es base64, la procesamos directamente sin fetch
+                if (image.startsWith('data:')) {
+                    const base64Data = image.split(',')[1];
+                    const extension = image.split(';')[0].split('/')[1] || 'png';
+                    const safeName = name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                    zip.file(`${safeName}_${i + 1}.${extension}`, base64Data, { base64: true });
+                } else {
+                    // Si es una URL externa (menos probable aquí), usamos fetch
+                    const response = await fetch(image);
+                    const blob = await response.blob();
+                    const safeName = name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                    zip.file(`${safeName}_${i + 1}.png`, blob);
+                }
+            }
+
+            const content = await zip.generateAsync({ type: "blob" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(content);
+            link.download = `${zipName.replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.zip`;
+            link.click();
+
+            // Limpiar URL para liberar memoria
+            setTimeout(() => URL.revokeObjectURL(link.href), 100);
+
+            setToast({ msg: "¡ZIP descargado!", type: 'success' });
+        } catch (error: any) {
+            console.error("Error creating ZIP:", error);
+            setToast({ msg: "Error al crear el ZIP", type: 'error' });
         }
-
-        const content = await zip.generateAsync({ type: "blob" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(content);
-        link.download = `${zipName}_${Date.now()}.zip`;
-        link.click();
-        setToast({ msg: "¡ZIP descargado!", type: 'success' });
     };
 
     const ColorPicker = ({ label, color, onChange }: { label: string, color: string, onChange: (c: string) => void }) => (
