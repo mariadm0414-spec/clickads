@@ -89,7 +89,7 @@ export default function Dashboard() {
     const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
     const [apiKey, setApiKey] = useState("");
     const [userPhoto, setUserPhoto] = useState<string | null>(null);
-    const [selectedRatio, setSelectedRatio] = useState<'4:5' | '9:16' | 'both'>('4:5');
+    const [selectedRatio, setSelectedRatio] = useState<'4:5' | '9:16' | 'both'>('both');
 
     // Auth Protection RESTORED - Selective access check
     useEffect(() => {
@@ -874,28 +874,6 @@ export default function Dashboard() {
                                                 <textarea className="input-field" placeholder="Ej: Resalta la frescura, estilo elegante..." style={{ height: 120 }} value={activeProject?.userPrompt} onChange={(e) => updateActiveProject({ userPrompt: e.target.value })} />
                                             </div>
                                             <div>
-                                                <label style={{ display: "block", fontSize: 12, fontWeight: 800, color: activeProject?.primaryColor, marginBottom: 12 }}>FORMATO / DIMENSIONES</label>
-                                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 24 }}>
-                                                    <button
-                                                        onClick={() => setSelectedRatio('4:5')}
-                                                        style={{ padding: "12px", borderRadius: 12, fontSize: 10, fontWeight: 800, cursor: "pointer", border: selectedRatio === '4:5' ? `2px solid ${activeProject?.primaryColor}` : "1px solid rgba(255,255,255,0.1)", background: selectedRatio === '4:5' ? `${activeProject?.primaryColor}10` : "transparent", color: selectedRatio === '4:5' ? activeProject?.primaryColor : "#9CA3AF" }}
-                                                    >
-                                                        Feed (4:5)
-                                                    </button>
-                                                    <button
-                                                        onClick={() => setSelectedRatio('9:16')}
-                                                        style={{ padding: "12px", borderRadius: 12, fontSize: 10, fontWeight: 800, cursor: "pointer", border: selectedRatio === '9:16' ? `2px solid ${activeProject?.primaryColor}` : "1px solid rgba(255,255,255,0.1)", background: selectedRatio === '9:16' ? `${activeProject?.primaryColor}10` : "transparent", color: selectedRatio === '9:16' ? activeProject?.primaryColor : "#9CA3AF" }}
-                                                    >
-                                                        Stories (9:16)
-                                                    </button>
-                                                    <button
-                                                        onClick={() => setSelectedRatio('both')}
-                                                        style={{ padding: "12px", borderRadius: 12, fontSize: 10, fontWeight: 800, cursor: "pointer", border: selectedRatio === 'both' ? `2px solid ${activeProject?.primaryColor}` : "1px solid rgba(255,255,255,0.1)", background: selectedRatio === 'both' ? `${activeProject?.primaryColor}10` : "transparent", color: selectedRatio === 'both' ? activeProject?.primaryColor : "#9CA3AF" }}
-                                                    >
-                                                        Ambas
-                                                    </button>
-                                                </div>
-
                                                 <label style={{ display: "block", fontSize: 12, fontWeight: 800, color: activeProject?.primaryColor, marginBottom: 12 }}>ÁNGULO DE VENTA</label>
                                                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 }}>
                                                     {[
@@ -1016,28 +994,6 @@ export default function Dashboard() {
                                     </div>
 
                                     <div>
-                                        <label style={{ display: "block", fontSize: 12, fontWeight: 800, color: "#8B5CF6", marginBottom: 12 }}>FORMATO</label>
-                                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 24 }}>
-                                            <button
-                                                onClick={() => setSelectedRatio('4:5')}
-                                                style={{ padding: "12px", borderRadius: 12, fontSize: 10, fontWeight: 800, cursor: "pointer", border: selectedRatio === '4:5' ? "2px solid #8B5CF6" : "1px solid rgba(255,255,255,0.1)", background: selectedRatio === '4:5' ? "rgba(139,92,246,0.1)" : "transparent", color: selectedRatio === '4:5' ? "#8B5CF6" : "#9CA3AF" }}
-                                            >
-                                                Feed (4:5)
-                                            </button>
-                                            <button
-                                                onClick={() => setSelectedRatio('9:16')}
-                                                style={{ padding: "12px", borderRadius: 12, fontSize: 10, fontWeight: 800, cursor: "pointer", border: selectedRatio === '9:16' ? "2px solid #8B5CF6" : "1px solid rgba(255,255,255,0.1)", background: selectedRatio === '9:16' ? "rgba(139,92,246,0.1)" : "transparent", color: selectedRatio === '9:16' ? "#8B5CF6" : "#9CA3AF" }}
-                                            >
-                                                Stories (9:16)
-                                            </button>
-                                            <button
-                                                onClick={() => setSelectedRatio('both')}
-                                                style={{ padding: "12px", borderRadius: 12, fontSize: 10, fontWeight: 800, cursor: "pointer", border: selectedRatio === 'both' ? "2px solid #8B5CF6" : "1px solid rgba(255,255,255,0.1)", background: selectedRatio === 'both' ? "rgba(139,92,246,0.1)" : "transparent", color: selectedRatio === 'both' ? "#8B5CF6" : "#9CA3AF" }}
-                                            >
-                                                Ambas
-                                            </button>
-                                        </div>
-
                                         <label style={{ display: "block", fontSize: 12, fontWeight: 800, color: "#8B5CF6", marginBottom: 12 }}>HERRAMIENTA</label>
                                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                                             <button
