@@ -32,9 +32,9 @@ export async function POST(req: Request) {
             .eq('email', email.toLowerCase())
             .maybeSingle();
 
-        if (!userData || userData.status !== 'active') {
+        if (!userData) {
             return NextResponse.json({
-                error: userData?.status === 'delayed' ? "Pago pendiente" : "Acceso no autorizado o correo no registrado"
+                error: "Acceso no autorizado o correo no registrado. Por favor, realiza tu compra primero."
             }, { status: 403 });
         }
 
