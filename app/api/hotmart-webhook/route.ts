@@ -25,33 +25,25 @@ export async function POST(req: Request) {
         console.log(`Hotmart Event: ${event} for ${email}`);
 
         // Mapeo de eventos de Hotmart a status de ClickAds
-        let status = 'active';
+        // Simplificado: Cualquier evento de compra o suscripción asegura el acceso.
+        // Las cancelaciones se manejan manualmente en Supabase según el pedido del usuario.
 
-        // Eventos que activan el acceso
-        const approvedEvents = [
+        const validEvents = [
             'PUR_APPROVED',
             'PUR_COMPLETE',
             'BIL_PRINTED',
-        ];
-
-        // Eventos que suspenden temporalmente (Mora)
-        const delayedEvents = [
             'PUR_DELAYED',
             'PUR_PROTESTED',
             'PAYMENT_OUT_OF_BANDS',
-        ];
-
-        // Eventos que cancelan el acceso
-        const inactiveEvents = [
             'PUR_CANCELED',
             'PUR_REFUNDED',
             'PUR_EXPIRED',
             'PUR_CHARGEBACK',
-            'SUBSCRIPTION_CANCELLATION', // Añadido para suscripciones
+            'SUBSCRIPTION_CANCELLATION'
         ];
 
-        if (approvedEvents.includes(event)) {
-            status = 'active';
+        if (validEvents.includes(event)) {
+            console.log(`Processing event ${event} for ${email} - Ensuring user is active`);
             const { error } = await supabase
                 .from('authorized_users')
                 .upsert({
@@ -60,23 +52,12 @@ export async function POST(req: Request) {
                     status: 'active'
                 }, { onConflict: 'email' });
 
-            if (error) throw error;
-        }
-        else if (delayedEvents.includes(event)) {
-            const { error: updateError } = await supabase
-                .from('authorized_users')
-                .update({ status: 'delayed' })
-                .eq('email', email);
-
-            if (updateError) throw updateError;
-        }
-        else if (inactiveEvents.includes(event)) {
-            const { error: updateError } = await supabase
-                .from('authorized_users')
-                .update({ status: 'inactive' })
-                .eq('email', email);
-
-            if (updateError) throw updateError;
+            if (error) {
+                console.error("Supabase Upsert Error:", error);
+                throw error;
+            }
+        } else {
+            console.log(`Event ${event} ignored as it's not a primary purchase event.`);
         }
 
         return NextResponse.json({ success: true });
