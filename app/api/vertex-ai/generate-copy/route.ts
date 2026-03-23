@@ -6,7 +6,7 @@ export const maxDuration = 300;
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { image, userPrompt, apiKey, brandName } = body;
+        const { image, userPrompt, apiKey, brandName, productName, targetAudience } = body;
 
         if (!apiKey) {
             return NextResponse.json({ error: "Se requiere una API Key de Gemini." }, { status: 401 });
@@ -44,7 +44,10 @@ export async function POST(req: Request) {
                 const base64Data = image.includes(",") ? image.split(",")[1] : image;
                 const mimeType = image.includes("image/png") ? "image/png" : "image/jpeg";
 
-                const prompt = `Analiza la imagen adjunta de un anuncio publicitario. Genera UN solo "Ad Copy" de alto impacto (texto persuasivo para Facebook/Instagram Ads) en ESPAÑOL.
+                const productCtx = productName ? `PRODUCTO: ${productName}. ` : "";
+                const audienceCtx = targetAudience ? `AVATAR/PÚBLICO: ${targetAudience}. ` : "";
+
+                const prompt = `Analiza la imagen adjunta de un anuncio publicitario. ${productCtx}${audienceCtx}Genera UN solo "Ad Copy" de alto impacto (texto persuasivo para Facebook/Instagram Ads) en ESPAÑOL.
                 
                 Marca: ${brandName || "ClickAds"}
                 Contexto Adicional del Usuario: ${userPrompt || "Ninguno"}
