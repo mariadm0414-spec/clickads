@@ -87,7 +87,7 @@ export async function POST(req: Request) {
 
         const variations = [];
         let lastError = "";
-        const modelNames = ["gemini-1.5-flash", "imagen-3.0-generate-001"];
+        const modelNames = ["gemini-3.1-flash-image-preview", "imagen-3.0-generate-001"];
 
         for (let i = 0; i < targets.length; i++) {
             const type = targets[i];
