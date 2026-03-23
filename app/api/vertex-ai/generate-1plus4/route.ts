@@ -33,7 +33,7 @@ export async function POST(req: Request) {
                 id: "TESTIMONIAL",
                 name: "TESTIMONIAL",
                 style: "Cinematic professional product photography with dramatic commercial lighting. High-end atmospheric setting.",
-                goal: "Añadir 2-3 burbujas de testimonio elegantes con avatares de perfil realistas. Cada burbuja debe tener un texto corto en ESPAÑOL (ej: '¡Es increíble!', 'Realmente funciona'). Incluir 5 estrellas doradas brillantes y el texto 'Únete a +250,000 clientes felices' en la parte inferior con tipografía premium."
+                goal: "Añadir 2-3 burbujas de testimonio elegantes con avatares de perfil realistas. Cada burbuja debe tener un texto corto en ESPAÑOL (ej: '¡Es increíble!', 'Realmente funciona'). Incluir 5 estrellas doradas brillantes y el texto 'Únete a +3,560 clientes felices' en la parte inferior con tipografía premium."
             },
             {
                 id: "SALES_CTA",
