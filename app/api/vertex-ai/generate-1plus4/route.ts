@@ -23,7 +23,7 @@ export async function POST(req: Request) {
         const logoInstruction = logoBase64 ? " INTEGRATE LOGO: Use the provided secondary image as the brand logo. Position it professionally in a corner or as part of the background. DO NOT write the word 'logo' or any technical labels." : "";
         const brandingContext = ` PRODUCT: "${productName || 'unknown'}". TARGET AUDIENCE: "${targetAudience || 'general'}". ${logoInstruction} VISUAL THEME: Use the palette ${primaryColor || "luxury"} and ${secondaryColor || "neutral"} for all graphic elements (buttons, borders, overlays). Use ${font || "modern"} style for typography. 
         CRITICAL RULES for TEXT: 
-        1. CRITICAL: NEVER write the font name "${font || "Inter"}", color names (e.g., "blue", "red"), or hex codes (e.g., "${primaryColor}") as visible text inside the image. They are ONLY for style. 
+        1. CRITICAL: NEVER write technical words like "INFOGRAPHIC", "INFOGRAFÍA", "BENEFITS", "BENEFICIOS", "FEATURES", "CARACTERÍSTICAS", "LOGO", or font names/hex codes as visible text. These are technical descriptions. Replace them with REAL MARKETING HEADLINES (e.g., "¡Garantía de Satisfacción!", "Diseño Premium para tu ${targetAudience}"). 
         2. MANDATORY: 100% of the visible text MUST be in PERFECT SPANISH. NO ENGLISH, NO GIBBERISH. 
         3. FONT STYLE: Use only VERY BOLD, CLEAN, PROFESSIONAL SANS-SERIF fonts for all overlays. NO cursive, NO ugly scripts. 
         4. If a piece of text is too complex to render perfectly, OMIT it or use a simple icon (heart, star) instead. 
