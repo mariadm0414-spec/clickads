@@ -28,7 +28,9 @@ export async function POST(req: Request) {
         3. FONT STYLE: Use only VERY BOLD, CLEAN, PROFESSIONAL SANS-SERIF fonts for all overlays. NO cursive, NO ugly scripts. 
         4. SPACING & CLARITY: If a piece of text is too complex to render perfectly or risks having typos, OMIT it or use a simple icon (heart, star, paw) instead. 
         5. MANDATORY CONTEXT: 100% of the generated text MUST BE STRICTLY RELEVANT to the product "${productName}" and the audience "${targetAudience}". NO GENERIC OR INCORRECT CLAIMS. 
+        6. PRICE POLICY: NEVER invent or include prices (e.g., "$9.99", "Precio Premium") UNLESS they are explicitly provided in the user's additional context/prompt.
 `;
+
         const allAdTypes = [
             {
                 id: "TESTIMONIAL",
@@ -58,7 +60,7 @@ export async function POST(req: Request) {
                 id: "BEFORE_AFTER",
                 name: "BEFORE_AFTER",
                 style: "Cinematic split-screen comparison with professional color grading.",
-                goal: "Comparativa de alto impacto. Etiqueta izquierda: 'ANTES', Etiqueta derecha: 'DESPUÉS' (en ESPAÑOL) usando tipografía moderna y clara."
+                goal: `Transformación de alto impacto emocional. Parte IZQUIERDA (ANTES): Mostrar el PROBLEMA que soluciona el producto "${productName || 'de la imagen'}" para el público "${targetAudience || 'general'}" (ej: aburrimiento, tristeza, desorden). Parte DERECHA (DESPUÉS): Mostrar la FELICIDAD y SOLUCIÓN usando el producto. Etiquetas claras en ESPAÑOL: 'ANTES' y 'DESPÚES'.`
             },
             {
                 id: "COMPARISON",
@@ -85,7 +87,7 @@ export async function POST(req: Request) {
 
         const variations = [];
         let lastError = "";
-        const modelNames = ["gemini-3.1-flash-image-preview", "imagen-3.0-generate-001"];
+        const modelNames = ["gemini-1.5-flash", "imagen-3.0-generate-001"];
 
         for (let i = 0; i < targets.length; i++) {
             const type = targets[i];
