@@ -21,12 +21,13 @@ export async function POST(req: Request) {
         const mimeType = productBase64.includes("image/png") ? "image/png" : "image/jpeg";
 
         const logoInstruction = logoBase64 ? " INTEGRATE LOGO: Use the provided secondary image as the brand logo. Position it professionally in a corner or as part of the background. DO NOT write the word 'logo' or any technical labels." : "";
-        const brandingContext = ` ${logoInstruction} VISUAL THEME: Use the palette ${primaryColor || "luxury"} and ${secondaryColor || "neutral"} for all graphic elements (buttons, borders, overlays). Use ${font || "modern"} style for typography. 
+        const brandingContext = ` PRODUCT: "${productName || 'unknown'}". TARGET AUDIENCE: "${targetAudience || 'general'}". ${logoInstruction} VISUAL THEME: Use the palette ${primaryColor || "luxury"} and ${secondaryColor || "neutral"} for all graphic elements (buttons, borders, overlays). Use ${font || "modern"} style for typography. 
         CRITICAL RULES for TEXT: 
         1. CRITICAL: NEVER write the font name "${font || "Inter"}", color names (e.g., "blue", "red"), or hex codes (e.g., "${primaryColor}") as visible text inside the image. They are ONLY for style. 
-        2. MANDATORY: 100% of the visible text MUST be in PERFECT SPANISH. NO ENGLISH, NO GIBBERISH, NO PLACEHOLDERS. 
+        2. MANDATORY: 100% of the visible text MUST be in PERFECT SPANISH. NO ENGLISH, NO GIBBERISH. 
         3. FONT STYLE: Use only VERY BOLD, CLEAN, PROFESSIONAL SANS-SERIF fonts for all overlays. NO cursive, NO ugly scripts. 
         4. If a piece of text is too complex to render perfectly, OMIT it or use a simple icon (heart, star) instead. 
+        5. MANDATORY CONTEXT: 100% of the generated text MUST BE STRICTLY RELEVANT to the product "${productName}" and the audience "${targetAudience}". NO GENERIC OR INCORRECT CLAIMS. 
 `;
 
         const allAdTypes = [
@@ -46,13 +47,13 @@ export async function POST(req: Request) {
                 id: "BENEFITS",
                 name: "BENEFITS",
                 style: "Clean luxury minimalist showroom with soft diffused lighting.",
-                goal: "Resaltar 3 beneficios clave usando iconos minimalistas y etiquetas de texto cortas en ESPAÑOL (ej: 'Calidad Premium', 'Envío Gratis', 'Garantía Total')."
+                goal: `Resaltar 3 beneficios clave del producto "${productName || 'de la imagen'}" para el público "${targetAudience || 'general'}" usando iconos minimalistas y etiquetas de texto cortas en ESPAÑOL (ej: 'Calidad Premium', 'Garantía Total').`
             },
             {
                 id: "INFOGRAPHIC",
                 name: "INFOGRAPHIC",
                 style: "Flat-lay professional editorial layout with clinical precision.",
-                goal: "Diseño de infografía premium con líneas finas y etiquetas de texto breves y elegantes en ESPAÑOL señalando partes o beneficios del producto."
+                goal: `Crear una infografía premium del producto "${productName || 'de la imagen'}". Señalar 3-4 características REALES y VERIFICABLES (ej: material, diseño, uso) para el público "${targetAudience || 'general'}". NO ALUCINAR funciones que no existan. Texto breve en ESPAÑOL.`
             },
             {
                 id: "BEFORE_AFTER",
