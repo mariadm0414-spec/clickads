@@ -23,12 +23,12 @@ export async function POST(req: Request) {
         const logoInstruction = logoBase64 ? " INTEGRATE LOGO: Use the provided secondary image as the brand logo. Position it professionally in a corner or as part of the background. DO NOT write the word 'logo' or any technical labels." : "";
         const brandingContext = ` PRODUCT: "${productName || 'unknown'}". TARGET AUDIENCE: "${targetAudience || 'general'}". ${logoInstruction} VISUAL THEME: Use the palette ${primaryColor || "luxury"} and ${secondaryColor || "neutral"} for all graphic elements (buttons, borders, overlays). Use ${font || "modern"} style for typography. 
         CRITICAL RULES for TEXT: 
-        1. CRITICAL: NEVER write HEX CODES (e.g., strings starting with # like "#8B5CF6", "#FFFFFF") or 6-character color codes as visible text. These are ONLY instructions for STYLE and COLOR THEME. If you write a hex code or a technical label as text, the image is a TOTAL FAILURE. 
+        1. CRITICAL: NEVER write technical labels like "INFOGRAPHIC", "INFOGRAFÍA", "BENEFITS", "BENEFICIOS", "FEATURES", "CARACTERÍSTICAS", "LOGO", or raw HEX CODES (e.g. #8B5CF6) as visible text. Replace them with REAL MARKETING HEADLINES (e.g. "¡Calidad Garantizada!", "Para tu ${targetAudience}"). 
         2. MANDATORY: 100% PERFECT SPANISH ORTHOGRAPHY. NO typos, NO word-breaks (AVOID "masco mscota", write exactly "mascota"). NO ENGLISH, NO GIBBERISH. 
         3. FONT STYLE: Use only VERY BOLD, CLEAN, PROFESSIONAL SANS-SERIF fonts for all overlays. NO cursive, NO ugly scripts. 
         4. SPACING & CLARITY: If a piece of text is too complex to render perfectly or risks having typos, OMIT it or use a simple icon (heart, star, paw) instead. 
         5. MANDATORY CONTEXT: 100% of the generated text MUST BE STRICTLY RELEVANT to the product "${productName}" and the audience "${targetAudience}". NO GENERIC OR INCORRECT CLAIMS. 
-        6. PRICE POLICY: NEVER invent or include prices (e.g., "$9.99", "Precio Premium") UNLESS they are explicitly provided in the user's additional context/prompt.
+        6. PRICE POLICY: NEVER invent or include prices (e.g. "$9.99") UNLESS they are explicitly provided in the user's additional context/prompt.
 `;
 
         const allAdTypes = [
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
                 id: "BEFORE_AFTER",
                 name: "BEFORE_AFTER",
                 style: "Cinematic split-screen comparison with professional color grading.",
-                goal: `Transformación de alto impacto emocional. Parte IZQUIERDA (ANTES): Mostrar el PROBLEMA que soluciona el producto "${productName || 'de la imagen'}" para el público "${targetAudience || 'general'}" (ej: aburrimiento, tristeza, desorden). Parte DERECHA (DESPUÉS): Mostrar la FELICIDAD y SOLUCIÓN usando el producto. Etiquetas claras en ESPAÑOL: 'ANTES' y 'DESPÚES'.`
+                goal: `Transformación de alto impacto emocional. Parte IZQUIERDA (ANTES): Mostrar el PROBLEMA que soluciona el producto "${productName || 'de la imagen'}" para el público "${targetAudience || 'general'}" (ej: aburrimiento, tristeza, desorden). Parte DERECHA (DESPUÉS): Mostrar la FELICIDAD y SOLUCIÓN usando el producto. Etiquetas claras en ESPAÑOL: 'ANTES' y 'DESPUÉS'.`
             },
             {
                 id: "COMPARISON",
