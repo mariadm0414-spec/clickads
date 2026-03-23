@@ -24,9 +24,9 @@ export async function POST(req: Request) {
         const brandingContext = ` PRODUCT: "${productName || 'unknown'}". TARGET AUDIENCE: "${targetAudience || 'general'}". ${logoInstruction} VISUAL THEME: Use the palette ${primaryColor || "luxury"} and ${secondaryColor || "neutral"} for all graphic elements (buttons, borders, overlays). Use ${font || "modern"} style for typography. 
         CRITICAL RULES for TEXT: 
         1. CRITICAL: NEVER write technical words like "INFOGRAPHIC", "INFOGRAFÍA", "BENEFITS", "BENEFICIOS", "FEATURES", "CARACTERÍSTICAS", "LOGO", or font names/hex codes as visible text. These are technical descriptions. Replace them with REAL MARKETING HEADLINES (e.g., "¡Garantía de Satisfacción!", "Diseño Premium para tu ${targetAudience}"). 
-        2. MANDATORY: 100% of the visible text MUST be in PERFECT SPANISH. NO ENGLISH, NO GIBBERISH. 
+        2. MANDATORY: 100% PERFECT SPANISH ORTHOGRAPHY. NO typos, NO word-breaks (AVOID "masco mscota", write exactly "mascota"). NO ENGLISH, NO GIBBERISH. 
         3. FONT STYLE: Use only VERY BOLD, CLEAN, PROFESSIONAL SANS-SERIF fonts for all overlays. NO cursive, NO ugly scripts. 
-        4. If a piece of text is too complex to render perfectly, OMIT it or use a simple icon (heart, star) instead. 
+        4. SPACING & CLARITY: If a piece of text is too complex to render perfectly or risks having typos, OMIT it or use a simple icon (heart, star, paw) instead. 
         5. MANDATORY CONTEXT: 100% of the generated text MUST BE STRICTLY RELEVANT to the product "${productName}" and the audience "${targetAudience}". NO GENERIC OR INCORRECT CLAIMS. 
 `;
 
