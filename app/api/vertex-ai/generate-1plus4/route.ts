@@ -6,7 +6,7 @@ export const maxDuration = 300;
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { productBase64, logoBase64, userPrompt, apiKey, specificAngle, count, primaryColor, secondaryColor, font, aspectRatio } = body;
+        const { productBase64, logoBase64, userPrompt, apiKey, specificAngle, count, primaryColor, secondaryColor, font, aspectRatio, productName, targetAudience } = body;
 
         if (!apiKey) {
             return NextResponse.json({ error: "Se requiere una API Key de Gemini para continuar." }, { status: 401 });
@@ -23,9 +23,9 @@ export async function POST(req: Request) {
         const logoInstruction = logoBase64 ? " INTEGRATE LOGO: Use the provided secondary image as the brand logo. Position it professionally in a corner or as part of the background. DO NOT write the word 'logo' or any technical labels." : "";
         const brandingContext = ` ${logoInstruction} VISUAL THEME: Use the palette ${primaryColor || "luxury"} and ${secondaryColor || "neutral"} for all graphic elements (buttons, borders, overlays). Use ${font || "modern"} style for typography. 
         CRITICAL RULES for TEXT: 
-        1. NEVER write hex codes (e.g., "${primaryColor}"), color names, or font names as visible text. 
-        2. All visible text must be in PERFECT SPANISH with no spelling mistakes. 
-        3. Only write the specific text requested in the goal, and nothing else. 
+        1. CRITICAL: NEVER write the specific font name "${font || "Inter"}", color names (e.g., "blue", "red"), or hex codes (e.g., "${primaryColor}") as visible text in the image. They are ONLY instructions for STYLE. 
+        2. All visible text (names, testimonials, etc.) MUST be in PERFECT SPANISH. NEVER write AGES (e.g., "40+ años", "late 40s") UNLESS explicitly requested in the user's additional context/prompt. 
+        3. Only write the specific text requested in the goal, and nothing else. NEVER write font names or color codes as text. 
         4. If a piece of text is too complex to render clearly, omit it or use a simple icon instead.`;
 
         const allAdTypes = [
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
                 id: "TESTIMONIAL",
                 name: "TESTIMONIAL",
                 style: "Cinematic professional product photography with dramatic commercial lighting. High-end atmospheric setting.",
-                goal: "Añadir 2-3 burbujas de testimonio elegantes con avatares de perfil realistas. Cada burbuja debe tener un texto corto en ESPAÑOL (ej: '¡Es increíble!', 'Realmente funciona'). Incluir 5 estrellas doradas brillantes y el texto 'Únete a +3,560 clientes felices' en la parte inferior con tipografía premium."
+                goal: "Añadir 2-3 burbujas de testimonios elegantes con avatares realistas. Cada burbuja con un texto corto en ESPAÑOL (ej: '¡Es increíble!', 'Realmente funciona'). No incluir edades. Incluir 5 estrellas doradas y el texto 'Únete a +3,500 clientes felices'."
             },
             {
                 id: "SALES_CTA",
@@ -88,8 +88,10 @@ export async function POST(req: Request) {
 
         for (let i = 0; i < targets.length; i++) {
             const type = targets[i];
-            const basePrompt = `Identify the product in the primary image. Professional photography style: ${type.style}. AD CREATIVE OBJECTIVE in SPANISH: ${type.goal}.${brandingContext}`;
-            const customContext = userPrompt ? ` CONTEXTO: ${userPrompt}.` : "";
+            const productCtx = productName ? ` PRODUCTO: ${productName}.` : "";
+            const audienceCtx = targetAudience ? ` PÚBLICO OBJETIVO/AVATAR: ${targetAudience}.` : "";
+            const basePrompt = `Identify the product in the primary image.${productCtx}${audienceCtx} Professional photography style: ${type.style}. AD CREATIVE OBJECTIVE in SPANISH: ${type.goal}.${brandingContext}`;
+            const customContext = userPrompt ? ` CONTEXTO ADICIONAL: ${userPrompt}.` : "";
             const finalPrompt = `${basePrompt}${customContext} Relación ${aspectRatio || '4:5'} vertical. Output: ONE high-quality image. Variation ${i + 1}`;
 
             let success = false;
