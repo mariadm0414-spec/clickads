@@ -29,13 +29,48 @@ export async function POST(req: Request) {
         4. If a piece of text is too complex to render clearly, omit it or use a simple icon instead.`;
 
         const allAdTypes = [
-            { id: "TESTIMONIAL", name: "TESTIMONIAL", style: "luxury studio setting with a clean background", goal: "Añadir una frase de testimonio corta en ESPAÑOL (ej: 'Excelente calidad'). Incluir 5 estrellas doradas." },
-            { id: "SALES_CTA", name: "SALES_CTA", style: "urban premium lifestyle setting", goal: "Incluir un botón que diga 'COMPRAR AHORA' en ESPAÑOL. Sin más texto innecesario." },
-            { id: "BENEFITS", name: "BENEFITS", style: "clean minimalist showroom", goal: "Resaltar 3 iconos con texto corto en ESPAÑOL (ej: 'Resistente', 'Elegante', 'Garantía')." },
-            { id: "INFOGRAPHIC", name: "INFOGRAPHIC", style: "flat-lay professional photography", goal: "Diseño con etiquetas de texto breves y limpias en ESPAÑOL explicativas." },
-            { id: "BEFORE_AFTER", name: "BEFORE_AFTER", style: "split screen comparison layout", goal: "Comparativa clara. Etiqueta izquierda: 'ANTES', Etiqueta derecha: 'DESPUÉS' (en ESPAÑOL)." },
-            { id: "COMPARISON", name: "COMPARISON", style: "side-by-side product duel", goal: "Comparativa. A un lado 'OTROS' y al otro 'NOSOTROS' en letras grandes y legibles en ESPAÑOL." },
-            { id: "ZOOM_DETAIL", name: "ZOOM_DETAIL", style: "editorial photography layout", goal: "Doble composición: producto en escenario de lujo y un zoom resaltando texturas." }
+            {
+                id: "TESTIMONIAL",
+                name: "TESTIMONIAL",
+                style: "Cinematic professional product photography with dramatic commercial lighting. High-end atmospheric setting.",
+                goal: "Añadir 2-3 burbujas de testimonio elegantes con avatares de perfil realistas. Cada burbuja debe tener un texto corto en ESPAÑOL (ej: '¡Es increíble!', 'Realmente funciona'). Incluir 5 estrellas doradas brillantes y el texto 'Únete a +250,000 clientes felices' en la parte inferior con tipografía premium."
+            },
+            {
+                id: "SALES_CTA",
+                name: "SALES_CTA",
+                style: "Urban premium lifestyle editorial photography. High-end professional lighting.",
+                goal: "Incluir un titular impactante en ESPAÑOL relacionado con el producto. Añadir un botón flotante moderno y contrastado que diga 'COMPRAR AHORA' en ESPAÑOL. Diseño limpio y minimalista."
+            },
+            {
+                id: "BENEFITS",
+                name: "BENEFITS",
+                style: "Clean luxury minimalist showroom with soft diffused lighting.",
+                goal: "Resaltar 3 beneficios clave usando iconos minimalistas y etiquetas de texto cortas en ESPAÑOL (ej: 'Calidad Premium', 'Envío Gratis', 'Garantía Total')."
+            },
+            {
+                id: "INFOGRAPHIC",
+                name: "INFOGRAPHIC",
+                style: "Flat-lay professional editorial layout with clinical precision.",
+                goal: "Diseño de infografía premium con líneas finas y etiquetas de texto breves y elegantes en ESPAÑOL señalando partes o beneficios del producto."
+            },
+            {
+                id: "BEFORE_AFTER",
+                name: "BEFORE_AFTER",
+                style: "Cinematic split-screen comparison with professional color grading.",
+                goal: "Comparativa de alto impacto. Etiqueta izquierda: 'ANTES', Etiqueta derecha: 'DESPUÉS' (en ESPAÑOL) usando tipografía moderna y clara."
+            },
+            {
+                id: "COMPARISON",
+                name: "COMPARISON",
+                style: "Side-by-side luxurious product face-off with dramatic lighting.",
+                goal: "Comparativa competitiva premium. A un lado 'OTROS' y al otro 'NOSOTROS' en letras grandes, legibles y elegantes en ESPAÑOL."
+            },
+            {
+                id: "ZOOM_DETAIL",
+                name: "ZOOM_DETAIL",
+                style: "Macro editorial photography showcasing texture and premium build quality.",
+                goal: "Doble composición: el producto en un escenario de lujo y un zoom macro detallado resaltando la calidad, con textos mínimos en ESPAÑOL."
+            }
         ];
 
         let targets = [];
