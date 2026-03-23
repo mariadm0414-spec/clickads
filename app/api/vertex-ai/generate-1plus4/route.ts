@@ -23,10 +23,11 @@ export async function POST(req: Request) {
         const logoInstruction = logoBase64 ? " INTEGRATE LOGO: Use the provided secondary image as the brand logo. Position it professionally in a corner or as part of the background. DO NOT write the word 'logo' or any technical labels." : "";
         const brandingContext = ` ${logoInstruction} VISUAL THEME: Use the palette ${primaryColor || "luxury"} and ${secondaryColor || "neutral"} for all graphic elements (buttons, borders, overlays). Use ${font || "modern"} style for typography. 
         CRITICAL RULES for TEXT: 
-        1. CRITICAL: NEVER write the specific font name "${font || "Inter"}", color names (e.g., "blue", "red"), or hex codes (e.g., "${primaryColor}") as visible text in the image. They are ONLY instructions for STYLE. 
-        2. All visible text (names, testimonials, etc.) MUST be in PERFECT SPANISH. NEVER write AGES (e.g., "40+ años", "late 40s") UNLESS explicitly requested in the user's additional context/prompt. 
-        3. Only write the specific text requested in the goal, and nothing else. NEVER write font names or color codes as text. 
-        4. If a piece of text is too complex to render clearly, omit it or use a simple icon instead.`;
+        1. CRITICAL: NEVER write the font name "${font || "Inter"}", color names (e.g., "blue", "red"), or hex codes (e.g., "${primaryColor}") as visible text inside the image. They are ONLY for style. 
+        2. MANDATORY: 100% of the visible text MUST be in PERFECT SPANISH. NO ENGLISH, NO GIBBERISH, NO PLACEHOLDERS. 
+        3. FONT STYLE: Use only VERY BOLD, CLEAN, PROFESSIONAL SANS-SERIF fonts for all overlays. NO cursive, NO ugly scripts. 
+        4. If a piece of text is too complex to render perfectly, OMIT it or use a simple icon (heart, star) instead. 
+`;
 
         const allAdTypes = [
             {
