@@ -22,14 +22,15 @@ export async function POST(req: Request) {
 
         const logoInstruction = logoBase64 ? " INTEGRATE LOGO: Use the provided secondary image as the brand logo. Position it professionally in a corner or as part of the background. DO NOT write the word 'logo' or any technical labels." : "";
         const brandingContext = ` PRODUCT: "${productName || 'unknown'}". TARGET AUDIENCE: "${targetAudience || 'general'}". ${logoInstruction} VISUAL THEME: Use the palette ${primaryColor || "luxury"} and ${secondaryColor || "neutral"} for all graphic elements (buttons, borders, overlays). Use ${font || "modern"} style for typography. 
-        CRITICAL RULES for TEXT: 
-        1. CRITICAL: NEVER write technical labels like "INFOGRAPHIC", "INFOGRAFÍA", "BENEFITS", "BENEFICIOS", "FEATURES", "CARACTERÍSTICAS", "LOGO", "WEBSITE", "URL", "WWW" or raw HEX CODES (e.g. #8B5CF6) as visible text. Replace them with REAL MARKETING HEADLINES (e.g. "¡Calidad Garantizada!", "Para tu ${targetAudience}"). 
-        2. MANDATORY: 100% PERFECT SPANISH ORTHOGRAPHY. NO typos, NO word-breaks (AVOID "masco mscota", write exactly "mascota"). NO ENGLISH, NO GIBBERISH. 
-        3. FONT STYLE: Use only VERY BOLD, CLEAN, PROFESSIONAL SANS-SERIF fonts for all overlays. NO cursive, NO ugly scripts. 
-        4. SPACING & CLARITY: If a piece of text is too complex to render perfectly or risks having typos, OMIT it or use a simple icon (heart, star, paw) instead. 
-        5. MANDATORY CONTEXT: 100% of the generated text MUST BE STRICTLY RELEVANT to the product "${productName}" and the audience "${targetAudience}". NO GENERIC OR INCORRECT CLAIMS. 
-        6. PRICE POLICY: NEVER invent or include prices (e.g. "$9.99") UNLESS they are explicitly provided in the user's additional context/prompt. 
-        7. BRANDING POLICY: NEVER invent or include placeholder logos, random brand names (e.g. "PetShop"), QR codes, or generic websites (e.g. "www.yoursite.com") UNLESS explicitly provided. 
+        CRITICAL RULES for TEXT AND TYPOGRAPHY: 
+        1. CRITICAL BAN ON META-TEXT: NEVER WRITE HEX CODES (e.g., #8B5CF6, #FFFFFF), COLOR NAMES ("blue", "morado"), OR FONT NAMES ("Inter", "Roboto") AS VISIBLE TEXT ON THE IMAGE. These are instructions for you to style the image, NOT copy to be rendered.
+        2. NO TECHNICAL LABELS: NEVER write "INFOGRAPHIC", "FEATURES", "LOGO", "URL", or "WEBSITE". Replace them with REAL MARKETING HEADLINES (e.g. "¡Calidad Garantizada!"). 
+        3. MANDATORY: 100% PERFECT SPANISH ORTHOGRAPHY. NO typos, NO word-breaks (AVOID "masco mscota", write exactly "mascota"). NO ENGLISH.
+        4. FONT STYLE: Use only VERY BOLD, CLEAN, PROFESSIONAL SANS-SERIF fonts for all overlays. NO cursive, NO ugly scripts. 
+        5. SPACING & CLARITY: If a piece of text is too complex to render perfectly, OMIT it or use a simple icon instead. 
+        6. MANDATORY CONTEXT: 100% of the generated text MUST BE STRICTLY RELEVANT to the product "${productName}" and the audience "${targetAudience}". NO GENERIC OR INCORRECT CLAIMS. 
+        7. PRICE POLICY: NEVER invent or include prices (e.g. "$9.99") UNLESS they are explicitly provided in the user's additional context. 
+        8. BRANDING POLICY: NEVER invent or include placeholder logos, random brand names, QR codes, or generic websites UNLESS explicitly provided. 
 `;
 
         const allAdTypes = [
@@ -111,7 +112,7 @@ export async function POST(req: Request) {
                         ],
                     });
 
-                    const mediaParts = [
+                    const mediaParts: any[] = [
                         { inlineData: { data: base64Data, mimeType: mimeType } }
                     ];
 
