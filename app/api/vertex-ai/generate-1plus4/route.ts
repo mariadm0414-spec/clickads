@@ -21,10 +21,10 @@ export async function POST(req: Request) {
         const mimeType = productBase64.includes("image/png") ? "image/png" : "image/jpeg";
 
         const logoInstruction = logoBase64 ? " INTEGRATE LOGO: Use the provided secondary image as the brand logo. Position it professionally in a corner or as part of the background. DO NOT write the word 'logo' or any technical labels." : "";
-        const brandingContext = ` PRODUCT: "${productName || 'unknown'}". TARGET AUDIENCE: "${targetAudience || 'general'}". ${logoInstruction} VISUAL THEME: Use the palette ${primaryColor || "luxury"} and ${secondaryColor || "neutral"} for all graphic elements (buttons, borders, overlays). Use ${font || "modern"} style for typography. 
-        CRITICAL RULES for TEXT AND TYPOGRAPHY: 
-        1. CRITICAL BAN ON META-TEXT: NEVER WRITE HEX CODES (e.g., #8B5CF6, #FFFFFF), COLOR NAMES ("blue", "morado"), OR FONT NAMES ("Inter", "Roboto") AS VISIBLE TEXT ON THE IMAGE. These are instructions for you to style the image, NOT copy to be rendered.
-        2. NO TECHNICAL LABELS: NEVER write "INFOGRAPHIC", "FEATURES", "LOGO", "URL", or "WEBSITE". Replace them with REAL MARKETING HEADLINES (e.g. "¡Calidad Garantizada!"). 
+        const brandingContext = ` PRODUCT: "${productName || 'unknown'}". TARGET AUDIENCE: "${targetAudience || 'general'}". ${logoInstruction} VISUAL THEME: Use the colors ${primaryColor || "luxury"} and ${secondaryColor || "neutral"} for backgrounds and accents. 
+        CRITICAL RULES for TEXT AND TYPOGRAPHY (READ CAREFULLY OR YOU FAIL): 
+        1. CRITICAL BAN ON META-TEXT: YOU MUST NEVER RENDER THE EXACT STRINGS "${primaryColor}" OR "${secondaryColor}" AS VISIBLE TEXT IN THE IMAGE. THESE ARE COLORS TO PAINT WITH, NOT WORDS TO WRITE! NEVER write Hex codes.
+        2. NO TECHNICAL LABELS: NEVER write "INFOGRAPHIC", "FEATURES", "LOGO", "URL", or "WEBSITE". Use REAL MARKETING HEADLINES instead. 
         3. MANDATORY: 100% PERFECT SPANISH ORTHOGRAPHY. NO typos, NO word-breaks (AVOID "masco mscota", write exactly "mascota"). NO ENGLISH.
         4. FONT STYLE: Use only VERY BOLD, CLEAN, PROFESSIONAL SANS-SERIF fonts for all overlays. NO cursive, NO ugly scripts. 
         5. SPACING & CLARITY: If a piece of text is too complex to render perfectly, OMIT it or use a simple icon instead. 
