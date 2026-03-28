@@ -12,13 +12,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Se requiere una API Key de Gemini para continuar." }, { status: 401 });
         }
 
-        if (!productBase64) {
-            return NextResponse.json({ error: "No se recibió la imagen del producto." }, { status: 400 });
-        }
-
         const userGenAI = new GoogleGenerativeAI(apiKey);
-        const base64Data = productBase64.includes(",") ? productBase64.split(",")[1] : productBase64;
-        const mimeType = productBase64.includes("image/png") ? "image/png" : "image/jpeg";
         const outputLang = language || "ESPAÑOL";
 
         const logoInstruction = logoBase64 ? " INTEGRATE LOGO: Use the provided secondary image as the brand logo. Position it professionally in a corner or as part of the background. DO NOT write the word 'logo' or any technical labels." : "";
