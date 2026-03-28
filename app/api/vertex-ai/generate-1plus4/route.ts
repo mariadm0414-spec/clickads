@@ -112,9 +112,7 @@ export async function POST(req: Request) {
                             { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
                             { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
                         ],
-                        generationConfig: {
-                            responseModalities: ["IMAGE"],
-                        } as any
+                        generationConfig: {} as any
                     }, { apiVersion: "v1" });
 
                     // Intentar generación de contenido
