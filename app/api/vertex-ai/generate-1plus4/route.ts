@@ -90,13 +90,13 @@ export async function POST(req: Request) {
 
         const variations = [];
         let lastError = "";
-        const modelNames = ["gemini-3.1-flash-image-preview", "imagen-3.0-generate-001"];
+        const modelNames = ["imagen-3.0-generate-001"];
 
         for (let i = 0; i < targets.length; i++) {
             const type = targets[i];
             const productCtx = productName ? ` PRODUCTO: ${productName}.` : "";
             const audienceCtx = targetAudience ? ` PÚBLICO OBJETIVO/AVATAR: ${targetAudience}.` : "";
-            const basePrompt = `Identify the product in the primary image.${productCtx}${audienceCtx} Professional photography style: ${type.style}. AD CREATIVE OBJECTIVE: ${type.goal}.${brandingContext}`;
+            const basePrompt = `Create a high quality commercial ad image. Identify the product conceptually. ${productCtx}${audienceCtx} Professional photography style: ${type.style}. AD CREATIVE OBJECTIVE: ${type.goal}.${brandingContext}`;
             const customContext = userPrompt ? ` CONTEXTO ADICIONAL: ${userPrompt}.` : "";
             const finalPrompt = `${basePrompt}${customContext} IMAGE DIMENSIONS / ASPECT RATIO: ${aspectRatio || '1:1'}. Output: ONE high-quality image. Variation ${i + 1}`;
 
@@ -113,18 +113,8 @@ export async function POST(req: Request) {
                         ],
                     });
 
-                    const mediaParts: any[] = [
-                        { inlineData: { data: base64Data, mimeType: mimeType } }
-                    ];
-
-                    if (logoBase64) {
-                        const lData = logoBase64.includes(",") ? logoBase64.split(",")[1] : logoBase64;
-                        const lMime = logoBase64.includes("image/png") ? "image/png" : "image/jpeg";
-                        mediaParts.push({ inlineData: { data: lData, mimeType: lMime } });
-                    }
-
+                    // Imagen 3 only supports text prompts
                     const result = await currentModel.generateContent([
-                        ...mediaParts,
                         finalPrompt,
                     ]);
 
