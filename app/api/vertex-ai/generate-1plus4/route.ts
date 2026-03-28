@@ -85,11 +85,11 @@ export async function POST(req: Request) {
         const variations = [];
         let lastError = "";
 
-        // Modelos válidos para generación de imágenes en v1beta
+        // Solo modelos de generación de imágenes válidos para v1
         const modelNames = [
             "imagen-3.0-generate-001",
-            "imagen-3.0-fast-001",
-            "gemini-1.5-flash-latest" // Backup
+            "imagen-3.0-generate-002",
+            "imagen-3.0-fast-001"
         ];
 
         for (let i = 0; i < targets.length; i++) {
@@ -112,7 +112,11 @@ export async function POST(req: Request) {
                             { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
                             { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
                         ],
-                    }, { apiVersion: "v1beta" });
+                        // @ts-ignore - Configuración específica para generación de imágenes en Gemini API
+                        generationConfig: {
+                            responseModalities: ["IMAGE"],
+                        }
+                    }, { apiVersion: "v1" });
 
                     // Intentar generación de contenido
                     const result = await currentModel.generateContent([
