@@ -85,11 +85,11 @@ export async function POST(req: Request) {
         const variations = [];
         let lastError = "";
 
-        // Solo modelos de generación de imágenes válidos para v1
+        // Configuración estable: modelos Gemini 1.5 que soportan salida multimodal (imagen)
         const modelNames = [
-            "imagen-3.0-generate-001",
-            "imagen-3.0-generate-002",
-            "imagen-3.0-fast-001"
+            "gemini-1.5-flash",
+            "gemini-1.5-pro",
+            "imagen-3.0-generate-001"
         ];
 
         for (let i = 0; i < targets.length; i++) {
@@ -112,8 +112,11 @@ export async function POST(req: Request) {
                             { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
                             { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
                         ],
-                        generationConfig: {} as any
-                    }, { apiVersion: "v1" });
+                        // Forzar salida de imagen en modelos multimodales
+                        generationConfig: {
+                            responseModalities: ["IMAGE"],
+                        } as any
+                    }, { apiVersion: "v1beta" });
 
                     // Intentar generación de contenido
                     const result = await currentModel.generateContent([
