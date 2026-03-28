@@ -6,7 +6,7 @@ async function test() {
     try {
         const model = genAI.getGenerativeModel({
             model: 'imagen-3.0-generate-001',
-            generationConfig: { responseModalities: ["IMAGE"] }
+            generationConfig: {}
         }, { apiVersion: "v1" });
         const result = await model.generateContent("A cat");
         console.log("Success:", result);
