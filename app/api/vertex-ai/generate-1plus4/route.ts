@@ -83,7 +83,7 @@ export async function POST(req: Request) {
         }
 
         const variations = [];
-        let lastError = "";
+        const modelErrors: string[] = [];
 
         // Configuración específica del panel AI Studio (Nano Banana 2)
         const modelNames = [
@@ -137,7 +137,8 @@ export async function POST(req: Request) {
                         break;
                     }
                 } catch (err: any) {
-                    lastError = err.message;
+                    const errMsg = `[${mName}]: ${err.message}`;
+                    if (!modelErrors.includes(errMsg)) modelErrors.push(errMsg);
                     console.error(`Error con modelo ${mName}:`, err.message);
                 }
             }
@@ -148,7 +149,8 @@ export async function POST(req: Request) {
         }
 
         if (variations.length === 0) {
-            throw new Error(`Error en la generación: ${lastError}. Asegúrate de que tu API Key tiene acceso a modelos de generación de imágenes.`);
+            const failDetail = modelErrors.join(" | ");
+            throw new Error(`Error en la generación: ${failDetail}. Asegúrate de que tu API Key tiene acceso a modelos de generación de imágenes.`);
         }
 
         return NextResponse.json({ success: true, variations: variations });
