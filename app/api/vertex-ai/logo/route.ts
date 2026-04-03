@@ -73,8 +73,9 @@ export async function POST(req: Request) {
 
         const modelNames = [
             "gemini-3.1-flash-image-preview",
-            "imagen-3.0-generate-001",
-            "gemini-1.5-flash"
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-pro-latest",
+            "imagen-3.0-generate-001"
         ];
 
         let finalLogo = null;
