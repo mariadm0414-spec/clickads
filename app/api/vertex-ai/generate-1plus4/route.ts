@@ -184,20 +184,21 @@ export async function POST(req: Request) {
         ];
 
         let targets = [];
-        if (specificAngle) {
+        if (specificAngle && specificAngle !== "ALL") {
             const angle = allAdTypes.find(a => a.id === specificAngle) || allAdTypes[0];
             const num = count || 1;
             for (let i = 0; i < num; i++) targets.push(angle);
         } else {
-            targets = allAdTypes;
+            // Si es MIX VARIADO (ALL), limitamos a 5 para evitar TIMEOUTS en Vercel
+            // Seleccionamos una muestra representativa de los tipos
+            const selectedIndices = [0, 5, 8, 10, 13]; // Hero, BeforeAfter, ProblemQ, Overcome, WhySpecial
+            targets = selectedIndices.map(idx => allAdTypes[idx]);
         }
 
         const variations = [];
         const modelErrors: string[] = [];
 
-        // Configuración específica del panel AI Studio (Nano Banana 2)
         const modelNames = [
-            "gemini-3.1-flash-image-preview",
             "gemini-1.5-flash",
             "gemini-1.5-pro",
             "imagen-3.0-generate-001"
@@ -291,9 +292,11 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: true, variations: variations });
 
     } catch (error: any) {
-        if (error.message.includes("429") || error.message.includes("Quota exceeded")) {
+        console.error("Generate 1plus4 Error:", error);
+        const msg = error?.message || "Error desconocido en el servidor.";
+        if (msg.includes("429") || msg.includes("Quota exceeded")) {
             return NextResponse.json({ error: "CUOTA EXCEDIDA. Intenta en unos minutos." }, { status: 429 });
         }
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: msg }, { status: 500 });
     }
 }
