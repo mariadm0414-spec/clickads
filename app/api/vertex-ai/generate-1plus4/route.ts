@@ -199,8 +199,9 @@ export async function POST(req: Request) {
         const modelErrors: string[] = [];
 
         const modelNames = [
-            "gemini-1.5-flash",
-            "gemini-1.5-pro",
+            "gemini-3.1-flash-image-preview",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-pro-latest",
             "imagen-3.0-generate-001"
         ];
 
