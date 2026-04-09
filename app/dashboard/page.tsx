@@ -1171,7 +1171,7 @@ export default function Dashboard() {
             const part = data.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData);
             if (part && part.inlineData) {
                 const img = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-                setDigitalResults([{ image: img }]);
+                setDigitalResults([{ image: img, angle: selectedDigitalAngle || "Digital" }]);
             } else {
                 throw new Error("No se pudo generar");
             }
