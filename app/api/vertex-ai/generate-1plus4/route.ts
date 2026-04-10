@@ -21,12 +21,12 @@ export async function POST(req: Request) {
         1. CRITICAL BAN ON META-TEXT: YOU MUST NEVER RENDER THE EXACT STRINGS "${primaryColor}" OR "${secondaryColor}" AS VISIBLE TEXT IN THE IMAGE. THESE ARE COLORS TO PAINT WITH, NOT WORDS TO WRITE! NEVER write Hex codes.
         2. NO TECHNICAL LABELS (STRICT BAN): NEVER, under any circumstances, write labels or structural words like "CABECERA SUPERIOR", "CABECERA", "SUBTITULAR", "TITULAR", "TITULO", "TAGLINE", "SUBHEADLINE", "LOGO", "URL", or "WEBSITE". These are labels FOR YOU, not for the image. If you write "CABECERA SUPERIOR" or "SUBTITULAR" on the image, you have failed miserably.
         3. PRODUCT RELEVANCE: The characters in the scene MUST be 100% relevant to the product. If the product is for PETS (dogs, cats, etc.), show the PET in the 'Antes' and 'Después' states. Do NOT put a random irritated human if the product is for a dog.
-        4. MANDATORY: 100% PERFECT ORTHOGRAPHY IN ${outputLang}. NO typos. LANGUAGE: ${outputLang}.
-        4. FONT STYLE: Use only VERY BOLD, CLEAN, PROFESSIONAL SANS-SERIF fonts for all overlays. NO cursive, NO ugly scripts. 
-        5. SPACING & CLARITY: If a piece of text is too complex to render perfectly, OMIT it or use a simple icon instead. 
-        6. MANDATORY CONTEXT: 100% of the generated text MUST BE STRICTLY RELEVANT to the product "${productName}" and the audience "${targetAudience}". NO GENERIC OR INCORRECT CLAIMS. 
-        7. PRICE POLICY: NEVER invent or include prices (e.g. "$9.99") UNLESS they are explicitly provided in the user's additional context. 
-        8. BRANDING POLICY: NEVER invent or include placeholder logos, random brand names, QR codes, or generic websites UNLESS explicitly provided. 
+        4. REGLA DE IDIOMA Y PRECISIÓN (MÁXIMA PRIORIDAD): TODO EL TEXTO DEBE ESTAR 100% EN ESPAÑOL. Usa el nombre exacto del producto proporcionado ("${productName}"). Está TERMINANTEMENTE PROHIBIDO usar sinónimos incorrectos (ej: no uses "GORRO" para un "SOMBRERO"). Usa ORTOGRAFÍA PERFECTA y gramática natural. EVITA palabras cortadas o sin sentido como "INSCRÁLA AT ACIÓN".
+        5. FONT STYLE: Use only VERY BOLD, CLEAN, PROFESSIONAL SANS-SERIF fonts for all overlays. NO cursive, NO ugly scripts. 
+        6. SPACING & CLARITY: If a piece of text is too complex to render perfectly, OMIT it or use a simple icon instead. 
+        7. MANDATORY CONTEXT: 100% of the generated text MUST BE STRICTLY RELEVANT to the product "${productName}" and the audience "${targetAudience}". NO GENERIC OR INCORRECT CLAIMS. 
+        8. PRICE POLICY: NEVER invent or include prices (e.g. "$9.99") UNLESS they are explicitly provided in the user's additional context. 
+        9. BRANDING POLICY: NEVER invent or include placeholder logos, random brand names, QR codes, or generic websites UNLESS explicitly provided. 
 `;
 
         const allAdTypes = [
@@ -81,7 +81,7 @@ export async function POST(req: Request) {
                 id: "HERO",
                 name: "HERO",
                 style: "Premium high-energy lifestyle advertising photography. High-impact commercial lighting. Vibrant atmosphere with professional athletic or premium lifestyle setting.",
-                goal: `Diseño 'HERO' de alto impacto: 1. TITULAR: Un titular GRANDE y PERSUASIVO en ${outputLang} sobre el producto "${productName}". 2. DESCRIPCIÓN: Un párrafo corto y emocionante. 3. PUNTOS CLAVE: 3 beneficios con iconos de check azules. 4. BADGES: Etiquetas de "ENVÍO GRATIS" y "GARANTÍA" en las esquinas. 5. PERSONA: Una persona exitosa/feliz usando el producto.`
+                goal: `Diseño 'HERO' de alto impacto: 1. TITULAR: Un titular GRANDE y PERSUASIVO en ${outputLang} sobre el producto "${productName}". 2. DESCRIPCIÓN: Un párrafo corto y emocionante. 3. PUNTOS CLAVE: 3 beneficios con iconos de check azules. 4. BADGES: Etiquetas de "ENVÍO SEGURO" y "GARANTÍA" en las esquinas. 5. PERSONA: Una persona exitosa/feliz usando el producto.`
             },
             {
                 id: "LIFESTYLE_ELITE",
