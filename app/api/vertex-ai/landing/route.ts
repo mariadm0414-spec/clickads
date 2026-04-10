@@ -179,7 +179,7 @@ INSTRUCCIONES DE DISEÑO:
 1. ${specificPrompt}
 2. ${colorStyle}
 3. REGLA ESTRICTA DE PRECIOS: No menciones precios, monedas ($) ni cifras de venta en esta imagen A MENOS que la categoría sea exactamente 'Oferta' y tengas datos numéricos reales. No inventes precios.
-4. REGLA DE ESCRITURA Y ORTOGRAFÍA (MUY CRÍTICO): SÓLO PUEDES USAR EL IDIOMA ${language.toUpperCase()} PARA TODO EL TEXTO. ESTÁ TERMINANTEMENTE PROHIBIDO EL INGLÉS U OTROS IDIOMAS. Usa ORTOGRAFÍA PERFECTA, incluyendo tildes y gramática correcta. EVITA errores de IA como letras duplicadas.
+4. REGLA DE ESCRITURA Y ORTOGRAFÍA (MÁXIMA PRIORIDAD): TODO el texto de la imagen DEBE ESTAR EXCLUSIVAMENTE EN ESPAÑOL. Está TERMINANTEMENTE PROHIBIDO el uso de inglés u otros idiomas. Usa ORTOGRAFÍA PERFECTA. PRECISIÓN DE PRODUCTO: Usa el nombre exacto del producto proporcionado. No uses sinónimos incorrectos (ej: si es un "Sombrero", NUNCA escribas "Gorro"). EVITA errores de IA como letras duplicadas o palabras inventadas. No escribas "INSCRÁLA AT ACIÓN" ni términos sin sentido.
 5. ESTRUCTURA: Combina de forma magistral texto, iconos, botones simulados y product shots en una composición vertical (proporción 447:800).
 6. RESOLUCIÓN: Calidad 8k, ultra detallada.
 
