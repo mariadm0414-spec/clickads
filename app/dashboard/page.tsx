@@ -1204,7 +1204,7 @@ export default function Dashboard() {
             const part = data.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData);
             if (part && part.inlineData) {
                 const img = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-                setClinicResults([{ image: img }]);
+                setClinicResults([{ image: img, angle: "Generado" }]);
             } else {
                 throw new Error("No se pudo generar");
             }
