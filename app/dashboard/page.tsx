@@ -1229,7 +1229,7 @@ export default function Dashboard() {
         try {
             const mediaParts = [{ inlineData: { data: digitalProduct.split(",")[1], mimeType: "image/jpeg" } }];
             if (digitalPerson || digitalLogo) {
-                mediaParts.push({ inlineData: { data: (digitalPerson || digitalLogo).split(",")[1], mimeType: "image/jpeg" } });
+                mediaParts.push({ inlineData: { data: (digitalPerson || digitalLogo)?.split(",")[1] || "", mimeType: "image/jpeg" } });;
             }
             const prompt = `Diseño de anuncio digital premium. Producto: ${activeProject?.productName}. Ángulo: ${selectedDigitalAngle}. Texto: ${digitalPrompt}.`;
 
