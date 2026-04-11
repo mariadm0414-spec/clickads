@@ -106,7 +106,7 @@ export default function LandingBuilder() {
                 mediaParts.push({ inlineData: { data, mimeType } });
             });
 
-            const prompt = `Diseña una sección de landing page. Categoría: ${activeCategory}. Plantilla de referencia: ${selectedTemplate.name}. Tamaño: ${outputSize}. Idioma: ${language}. Crea un diseño premium, profesional y persuasivo.`;
+            const prompt = `Diseña una sección de landing page. Categoría: ${activeCategory}. Plantilla de referencia: ${selectedTemplate.name}. Tamaño: ${outputSize}. Idioma: ESPAÑOL (MANDATORIO). REGLA CRÍTICA: Todo el texto debe estar 100% en ESPAÑOL. Está TERMINANTEMENTE PROHIBIDO el inglés. Usa ortografía perfecta. No inventes palabras sin sentido. Crea un diseño premium, profesional y persuasivo.`;
 
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=${apiKey}`;
             const res = await fetch(url, {
