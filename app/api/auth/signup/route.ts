@@ -1,67 +1,72 @@
-import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
+
+export async function GET() {
+    return NextResponse.json({ message: "Signup API is reachable" });
+}
 
 export async function POST(req: Request) {
     try {
-        const body = await req.json();
-        const { name, email, password } = body;
-        const normalizedEmail = email.trim().toLowerCase();
+        const { email, password, full_name } = await req.json();
+        const cleanEmail = email.trim().toLowerCase();
 
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+        const supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!
+        );
 
-        if (!supabaseUrl || !supabaseKey) {
-            return NextResponse.json({ error: "Faltan las llaves en Vercel." }, { status: 500 });
+        // 1. Verificar si el correo está en la lista de autorizados
+        const { data: authRecord, error: dbError } = await supabaseAdmin
+            .from('authorized_users')
+            .select('*')
+            .ilike('email', cleanEmail)
+            .maybeSingle();
+
+        if (dbError || !authRecord) {
+            return NextResponse.json({
+                error: "No puedes registrarte. Este correo no está registrado como comprador en nuestra base de datos."
+            }, { status: 403 });
         }
 
-        const supabaseAdmin = createClient(supabaseUrl, supabaseKey, {
-            auth: { autoRefreshToken: false, persistSession: false }
-        });
-
-        // 1. EL CANDADO VIP DE SHOPIFY (¡Activado de nuevo!)
-        const { data: authorized, error: authError } = await supabaseAdmin
-            .from("authorized_emails")
-            .select("email")
-            .eq("email", normalizedEmail)
-            .single();
-
-        if (authError || !authorized) {
-            return NextResponse.json(
-                { error: "Acceso denegado. Este correo no tiene una compra vinculada a Shopify." },
-                { status: 401 }
-            );
-        }
-
-        // 2. Crear el usuario en Auth (Solo llega aquí si pasó el candado)
-        const { data: authData, error: signUpError } = await supabaseAdmin.auth.admin.createUser({
-            email: normalizedEmail,
+        // 2. Crear el usuario en Supabase Auth (usando Admin para saltar confirmación)
+        const { data: userData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+            email: cleanEmail,
             password: password,
             email_confirm: true,
-            user_metadata: { name: name }
+            user_metadata: { full_name: full_name || authRecord.full_name }
         });
 
-        if (signUpError && !signUpError.message.includes("already")) {
-            return NextResponse.json({ error: `Error Auth: ${signUpError.message}` }, { status: 400 });
-        }
+        if (authError) {
+            // Si ya existe, lo actualizamos por si acaso
+            if (authError.message.includes("already registered") || authError.message.includes("already exists")) {
+                const { data: { users } } = await supabaseAdmin.auth.admin.listUsers();
+                const existingUser = users.find(u => u.email?.toLowerCase() === cleanEmail);
 
-        // 3. Guardar en Profiles con sus 10 créditos para Manus
-        try {
-            const userId = authData?.user?.id;
-            if (userId) {
-                await supabaseAdmin.from("profiles").upsert({
-                    id: userId,
-                    email: normalizedEmail,
-                    name: name,
-                    credits: 10
-                });
+                if (existingUser) {
+                    await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
+                        password: password,
+                        user_metadata: { full_name: full_name || authRecord.full_name }
+                    });
+                } else {
+                    return NextResponse.json({ error: "El usuario ya existe pero no se pudo actualizar." }, { status: 400 });
+                }
+            } else {
+                return NextResponse.json({ error: authError.message }, { status: 400 });
             }
-        } catch (e) {
-            console.log("Aviso: El perfil no se guardó, pero el usuario sí entró.");
         }
 
-        return NextResponse.json({ success: true });
+        // 3. Opcional: Asegurar que el status sea active en la tabla
+        await supabaseAdmin
+            .from('authorized_users')
+            .update({ status: 'active', full_name: full_name || authRecord.full_name })
+            .ilike('email', cleanEmail);
 
-    } catch (error: any) {
-        return NextResponse.json({ error: "Error interno del servidor." }, { status: 500 });
+        return NextResponse.json({ message: "Registro completado con éxito" });
+
+    } catch (error) {
+        console.error("Critical Signup Error:", error);
+        return NextResponse.json({ error: "Error interno al procesar el registro" }, { status: 500 });
     }
 }
