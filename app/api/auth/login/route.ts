@@ -1,96 +1,64 @@
-import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { NextResponse } from "next/server";
 
-// ── Inicialización Supabase Admin / Service Role ────────────────────────────
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+export const dynamic = "force-dynamic";
 
-const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
-
-import { headers } from "next/headers";
+export async function GET() {
+    return NextResponse.json({ message: "Login API is reachable" });
+}
 
 export async function POST(req: Request) {
-    if (!supabase) {
-        return NextResponse.json({ error: "Supabase no está configurado correctament." }, { status: 500 });
-    }
-
     try {
         const { email, password } = await req.json();
+        const cleanEmail = email.trim().toLowerCase();
 
-        if (!email) {
-            return NextResponse.json({ error: "El correo es requerido." }, { status: 400 });
-        }
+        // Cliente para autenticación (usamos anon key)
+        const supabase = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
 
-        const normalizedEmail = email.trim().toLowerCase();
+        // Cliente para base de datos (usamos service role para saltar RLS)
+        const supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!
+        );
 
-        // 1. Verificación en tabla authorized_emails
-        const { data: authorized, error: authError } = await supabase
-            .from("authorized_emails")
-            .select("email")
-            .eq("email", normalizedEmail)
-            .single();
-
-        if (authError || !authorized) {
-            return NextResponse.json(
-                { error: "Este correo no tiene una compra activa." },
-                { status: 401 }
-            );
-        }
-
-        // 2. Extracción de IP para evitar compras compartidas / fraude
-        const ip =
-            req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-            req.headers.get("x-real-ip") ||
-            req.headers.get("cf-connecting-ip") ||
-            req.headers.get("true-client-ip") ||
-            "desconocida";
-
-        // 3. Verificación de IP en tabla profiles para evitar que la misma IP registre múltiples cuentas
-        // Nota: asume schema profiles(id, email, ip_address). Cambialo según tu db de perfiles final.
-        if (ip !== "desconocida") {
-            const { data: existingProfiles, error: profileError } = await supabase
-                .from("profiles")
-                .select("email, ip_address")
-                .eq("ip_address", ip)
-                .neq("email", normalizedEmail);
-
-            if (!profileError && existingProfiles && existingProfiles.length > 0) {
-                return NextResponse.json(
-                    { error: "Cuenta duplicada. Ya existe una cuenta asociada a este dispositivo / red." },
-                    { status: 401 }
-                );
-            }
-        }
-
-        // --- ACCESO CONCEDIDO ---
-        // Guardar/Actualizar perfil
-        const namePart = normalizedEmail.split("@")[0];
-        const name = namePart.charAt(0).toUpperCase() + namePart.slice(1).replace(/[._-]/g, " ");
-
-        // Registramos en perfiles (opcionalmente) la IP y usuario la primera vez que inicia sesión/registra
-        const { error: upsertError } = await supabase
-            .from("profiles")
-            .upsert({ email: normalizedEmail, ip_address: ip, name }, { onConflict: "email" });
-
-        if (upsertError) {
-            console.error("Error actualizando perfil:", upsertError);
-            // Seguimos adelante de igual forma en caso de fallar info secundaria
-        }
-
-        return NextResponse.json({
-            success: true,
-            user: {
-                id: Buffer.from(normalizedEmail).toString("base64"),
-                name: name,
-                email: normalizedEmail,
-            },
+        // 1. Intentar iniciar sesión en Supabase Auth
+        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+            email: cleanEmail,
+            password: password,
         });
 
-    } catch (error: any) {
-        console.error("Auth error:", error);
-        return NextResponse.json(
-            { error: "Error interno del servidor." },
-            { status: 500 }
-        );
+        if (authError) {
+            return NextResponse.json({ error: "Correo o contraseña incorrectos" }, { status: 401 });
+        }
+
+        // 2. Verificar que el correo esté en la lista de autorizados
+        const { data: userRecord, error: dbError } = await supabaseAdmin
+            .from('authorized_users')
+            .select('*')
+            .ilike('email', cleanEmail)
+            .maybeSingle();
+
+        if (dbError || !userRecord) {
+            // Si no está en la base de datos, no lo dejamos pasar aunque tenga cuenta en Auth
+            return NextResponse.json({
+                error: "Acceso denegado. Este correo no figura en la lista de compradores autorizados."
+            }, { status: 403 });
+        }
+
+        // 3. Todo bien, regresamos el usuario
+        return NextResponse.json({
+            user: {
+                id: authData.user.id,
+                email: authData.user.email,
+                name: userRecord.full_name || "Usuario",
+            }
+        });
+
+    } catch (error) {
+        console.error("Critical Login Error:", error);
+        return NextResponse.json({ error: "Error en el servidor de autenticación" }, { status: 500 });
     }
 }
