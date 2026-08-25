@@ -1690,7 +1690,7 @@ export default function Home() {
                             }}>Ahorras más del 60% hoy 🔥</div>
 
                             <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: 8 }}>
-                                <span style={{ fontSize: "clamp(60px, 12vw, 96px)", fontWeight: 900, color: "#fff", letterSpacing: "-0.04em" }}>$37</span>
+                                <span style={{ fontSize: "clamp(60px, 12vw, 96px)", fontWeight: 900, color: "#fff", letterSpacing: "-0.04em" }}>$27</span>
                                 <span style={{ fontSize: 24, color: "#4B5563", fontWeight: 700 }}>USD</span>
                             </div>
                             <div style={{ marginTop: 24, marginBottom: 12 }}>
